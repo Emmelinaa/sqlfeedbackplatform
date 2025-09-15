@@ -70,7 +70,9 @@ function TopBar() {
             src={nosqlconceptsLogo}
             alt="NoSQLconcepts Logo"
           /> */}
-          NoSQLconcepts
+          <span>Database Learning</span>
+          <br />
+          <span style={{opacity: 0.7}}>NoSQLconcepts &amp; SQL Beginner</span>
         </Typography>
       {/*   <Button
           component={Link}

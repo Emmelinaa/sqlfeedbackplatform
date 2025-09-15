@@ -34,6 +34,7 @@ import UserProfile from "./pages/userProfile.jsx";
 import AdminPage from "./pages/adminPage.jsx";
 import NewInformationC from "./pages/information.jsx";
 import TestC from "./pages/test.jsx";
+import NewAreaSelect from "./pages/areaSelect.jsx";
 
 
 const AuthContext = createContext();
@@ -102,10 +103,16 @@ class ErrorBoundary extends React.Component {
 // Routes component
 const AppRoutes = ({ assignments }) => {
   const routes = [
-    { path: "/", element: <ProtectedRoute element={<NewDashboard />} /> },
+    { path: "/", element: <ProtectedRoute element={<NewAreaSelect />} /> },
     { path: "/userprofile", element: <ProtectedRoute element={<UserProfile />} /> },
     /* { path: "/history", element: <ProtectedRoute element={<HistoryC />} /> },
     { path: "/my-data", element: <ProtectedRoute element={<MyData />} /> }, */
+
+    {
+      path: "/sql-nosql-dashboard",
+      element: <ProtectedRoute element={<NewDashboard />} />,
+    },
+
     {
       path: "/statistics",
       element: <ProtectedRoute element={<NewStatistics />} />,

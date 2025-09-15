@@ -13,7 +13,7 @@ export const handleLogin = async (username, password, setIsLoggedIn, setUser, se
     setUser(response.data.user_name);
     setRole(response.data.role);
 
-    navigate("/"); 
+    navigate("/area-select"); 
     window.location.reload();
   } catch (error) {
     console.log(error);
