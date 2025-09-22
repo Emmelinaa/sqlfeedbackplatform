@@ -41,7 +41,7 @@ import {
 } from "@mui/material";
 import { checkAuth } from "../../api/loginApi";
 import CircularProgressC from "./circularProgressC";
-export default function CardContainer() {
+export default function CardContainer({ area }) {
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -79,10 +79,14 @@ export default function CardContainer() {
   const loadAssignments = async () => {
     try {
       const response = await fetchAssignments();
-      setAssignments(response);
-      console.log(response);
-      if (response.length > 0) {
-        let idArray = response.map((item) => item.area_id);
+
+      // Filter the Assignment-Objekt based on the area
+      const filteredAssignments = response.filter(areaItem => areaItem.selected_area === area);
+
+      setAssignments(filteredAssignments);
+      console.log(filteredAssignments);
+      if (filteredAssignments.length > 0) {
+        let idArray = filteredAssignments.map((item) => item.area_id);
         let maxId = Math.max(...idArray) + 1;
 
         setMaxId(maxId);

@@ -108,8 +108,9 @@ const AppRoutes = ({ assignments }) => {
     /* { path: "/history", element: <ProtectedRoute element={<HistoryC />} /> },
     { path: "/my-data", element: <ProtectedRoute element={<MyData />} /> }, */
 
+    // Dashboard route for /dashboard, /dashboard?area=sql-beginner and /dashboard?area=nosqlconcepts 
     {
-      path: "/sql-nosql-dashboard",
+      path: "/dashboard",
       element: <ProtectedRoute element={<NewDashboard />} />,
     },
 

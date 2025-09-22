@@ -29,7 +29,7 @@ const NewAreaSelect = () => {
     // NoSQLconcepts Login
     const handleNosqlLogin = () => {
         if (nosqlPassword === rightNoSQLPassword) {
-            navigate("/sql-nosql-dashboard");
+            navigate("/dashboard?area=nosqlconcepts");
         } else {
             setNosqlError("Falsches Passwort!");
         }
@@ -39,7 +39,7 @@ const NewAreaSelect = () => {
     // TODO: /dashboard-sql is not created yet
     const handleSQLLogin = () => {
         if (sqlPassword === rightSQLPassword) {
-            navigate("/dashboard-sql");
+            navigate("/dashboard?area=sql-beginner");
         } else {
             setSQLError("Falsches Passwort!");
         }

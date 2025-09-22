@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS tool.task_areas
     endpoint character varying COLLATE pg_catalog."default",
     is_active boolean,
     feedback_on boolean,
+    -- Add new column area (for filtering tasks by area in dashboard)
+    selected_area character varying(50),
     CONSTRAINT task_areas_pkey PRIMARY KEY (area_id)
 );
 
