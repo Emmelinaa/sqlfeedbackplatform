@@ -158,6 +158,11 @@ function TopBar() {
               Course statistics
             </MenuItem>
           )}
+           {username && (
+            <MenuItem component={Link} to="/area-select" onClick={handleClose}>
+              Kursauswahl
+            </MenuItem>
+          )}
           <MenuItem component={Link} to="/information" onClick={handleClose}>
             Information
           </MenuItem>

@@ -59,6 +59,7 @@ export default function CardContainer({ area }) {
     endpoint: "",
     is_active: false,
     feedback_on: false,
+    selected_area: area,
   });
   const [openFormDialog, setOpenFormDialog] = useState(false);
 
@@ -106,6 +107,7 @@ export default function CardContainer({ area }) {
       endpoint: "",
       is_active: false,
       feedback_on: false,
+      selected_area: area,
     });
     setOpenFormDialog(true);
   };
@@ -137,6 +139,7 @@ export default function CardContainer({ area }) {
       endpoint: "",
       is_active: false,
       feedback_on: false,
+      selected_area: area,
     });
   };
   const handleConfirmation = async () => {
@@ -148,7 +151,8 @@ export default function CardContainer({ area }) {
           formValues.area_id &&
           formValues.area_name &&
           formValues.link &&
-          formValues.endpoint
+          formValues.endpoint &&
+          formValues.selected_area
         ) {
           await addAssignment(formValues);
           window.location.reload();
@@ -160,7 +164,8 @@ export default function CardContainer({ area }) {
           formValues.area_id &&
           formValues.area_name &&
           formValues.link &&
-          formValues.endpoint
+          formValues.endpoint &&
+          formValues.selected_area
         ) {
           await updateAssignment(formValues);
           window.location.reload();
@@ -195,6 +200,16 @@ export default function CardContainer({ area }) {
     const { name, value } = event.target;
     setFormValues({ ...formValues, [name]: value });
   };
+
+  // Depending on the chosen area, the selection for the databases changes
+  const databankOptions = area === "sql-beginner"
+    // SQL-Beginner -> only PostgreSQL
+    ? [ { value: "PostgreSQL", label: "PostgreSQL" } ]
+    // NoSQL-Beginner -> (all) PostgreSQL, Cassandra, Neo4J and MongoDB
+    : [ { value: "PostgreSQL", label: "PostgreSQL" },
+        { value: "Cassandra", label: "Cassandra" },
+        { value: "Neo4J", label: "Neo4J" },
+        { value: "MongoDB", label: "MongoDB" } ];
 
   return (
     <Box
@@ -364,6 +379,7 @@ export default function CardContainer({ area }) {
           <DialogTitle>
             {actionType === "add" ? "Add Assignment" : "Edit Assignment"}
           </DialogTitle>
+          {/* Add Assignment */}
           <DialogContent>
             <TextField
               required
@@ -423,10 +439,10 @@ export default function CardContainer({ area }) {
                 onChange={handleFormInputChange}
                 label="Database Endpoint"
               >
-                <MenuItem value="PostgreSQL">PostgreSQL</MenuItem>
-                <MenuItem value="Cassandra">Cassandra</MenuItem>
-                <MenuItem value="Neo4J">Neo4J</MenuItem>
-                <MenuItem value="MongoDB">MongoDB</MenuItem>
+                {databankOptions.map( (dbOption) => (
+                  // Database value and label for the selection menu
+                  <MenuItem key={dbOption.value} value={dbOption.value}> {dbOption.label} </MenuItem> ) )
+                }
               </Select>
             </FormControl>
 

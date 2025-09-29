@@ -427,6 +427,8 @@ AND task_area_id = $3;`;
       ]);
     } else {
       //const { handleDataStorageInsertQuery } = queries;
+
+      // TODO: Add selected_area
       const handleDataStorageInsertQuery = `INSERT INTO ${table} (
   username,
   statement_id,
@@ -534,6 +536,7 @@ app.post("/api/add-exercise", async (req, res) => {
       formValues.maxtime,
       formValues.hint,
       formValues.tasknumber,
+      // formValues.selected_area,
     ],
     res
   );
@@ -553,6 +556,7 @@ app.post("/api/update-exercises", async (req, res) => {
       formValues.tasknumber,
       formValues.statement_id,
       formValues.area_id,
+      // formValues.selected_area,
     ],
     res
   );
@@ -571,6 +575,8 @@ app.post("/api/add-assignment", async (req, res) => {
       formValues.link,
       formValues.endpoint,
       formValues.is_active,
+      formValues.feedback_on,
+      formValues.selected_area,
     ],
     res
   );
@@ -594,6 +600,7 @@ app.post("/api/update-assignment", async (req, res) => {
       formValues.endpoint,
       formValues.is_active,
       formValues.feedback_on,
+      formValues.selected_area,
     ],
     res
   );

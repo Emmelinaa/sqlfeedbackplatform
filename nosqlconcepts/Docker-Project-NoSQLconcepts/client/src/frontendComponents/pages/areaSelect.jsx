@@ -36,7 +36,6 @@ const NewAreaSelect = () => {
     };
 
     // SQL-Beginner Login
-    // TODO: /dashboard-sql is not created yet
     const handleSQLLogin = () => {
         if (sqlPassword === rightSQLPassword) {
             navigate("/dashboard?area=sql-beginner");

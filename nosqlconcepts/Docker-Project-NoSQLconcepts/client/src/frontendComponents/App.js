@@ -207,6 +207,7 @@ const AppRoutes = ({ assignments }) => {
                 area_name={assignment.area_name}
                 endpoint={assignment.endpoint}
                 feedback_on={assignment.feedback_on}
+                selected_area={assignment.selected_area}
               />
             }
           />

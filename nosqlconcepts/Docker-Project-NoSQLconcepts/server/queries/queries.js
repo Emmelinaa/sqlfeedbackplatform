@@ -174,6 +174,7 @@ getQueryDataFromDBQuery: `SELECT query_text, result_size, is_executable FROM too
 getTimeDataFromDBQuery: `SELECT processing_time FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 AND statement_id = $3 `,
 getDownloadDataFromDBQuery: `SELECT statement_id, query_text, result_size, is_executable, partial_solution, is_correct, difficulty_level, processing_time FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 order by statement_id`,
 getExercisesCountQuery: `SELECT COUNT(*) FROM tool.task_statements WHERE statement_id = $1 AND area_id = $2`,
+// TODO: add selected_area
 addExerciseQuery: `INSERT INTO tool.task_statements (statement_id, area_id, statement_text, solution_query, topic, subtasknumber, maxtime, hint, tasknumber) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
 updateExerciseQuery: `UPDATE tool.task_statements SET statement_text = $1, solution_query = $2, topic = $3, subtasknumber = $4, maxtime = $5, hint = $6, tasknumber = $7 WHERE statement_id = $8 AND area_id = $9`,
 deleteExerciseQuery: `DELETE FROM tool.task_statements WHERE statement_id = $1 AND area_id = $2`,

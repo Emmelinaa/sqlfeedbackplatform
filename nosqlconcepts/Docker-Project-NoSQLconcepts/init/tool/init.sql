@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS tool.task_statements
     maxtime text COLLATE pg_catalog."default",
     hint text COLLATE pg_catalog."default",
     tasknumber text COLLATE pg_catalog."default",
+    -- selected_area character varying(50),
     CONSTRAINT task_statements_pkey PRIMARY KEY (statement_id, area_id),
     CONSTRAINT task_statements_area_id_fkey FOREIGN KEY (area_id)
         REFERENCES tool.task_areas (area_id) MATCH SIMPLE

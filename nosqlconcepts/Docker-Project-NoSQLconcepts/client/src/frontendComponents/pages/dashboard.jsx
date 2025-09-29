@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Box } from "@mui/material";
 import CardContainer from "../components/dashboardComponents/cardContainer";
 import GreetingHeader from "../components/dashboardComponents/greetingHeader";
@@ -18,11 +18,14 @@ const NewDashboard = () => {
   const location = useLocation();
 
   // Redirect to /area-select if no valid area is entered
-  if (location.pathname === "/dashboard" 
-    || ( !location.pathname.includes("?area=sql-beginner")
-        && !location.pathname.includes("?area=nosqlconcepts") ) ) {
-    navigate ("/area-select");
-  } 
+  useEffect(() => {
+    const paramsError = new URLSearchParams(location.search);
+    const areaError = paramsError.get("area");
+    if ( (location.pathname === "/dashboard" && !location.search)
+      || (areaError !== "nosqlconcepts" && areaError !== "sql-beginner") ) {
+          navigate("/area-select");
+        }
+  }, [location, navigate]);
   
   const courseParams = new URLSearchParams(location.search);
   const courseArea = courseParams.get("area");
