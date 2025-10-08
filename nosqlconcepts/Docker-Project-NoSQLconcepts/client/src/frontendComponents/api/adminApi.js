@@ -20,11 +20,12 @@ export const fetchExercises = async () => {
     throw error;
   }
 };
-export const deleteExercise = async (statement_id, area_id) => {
+export const deleteExercise = async (statement_id, area_id, selected_area) => {
   try {
     const response = await axios.post(`${API_URL}/delete-exercises`, {
       statement_id,
       area_id,
+      selected_area,
     });
     return response.data;
   } catch (error) {
@@ -77,10 +78,11 @@ export const fetchAssignments = async () => {
   }
 };
 
-export const deleteAssignment = async (area_id) => {
+export const deleteAssignment = async ({area_id, selected_area}) => {
   try {
     const response = await axios.post(`${API_URL}/delete-assignment`, {
       area_id,
+      selected_area,
     });
     return response.data;
   } catch (error) {
@@ -100,9 +102,12 @@ export const updateAssignment = async (formValues) => {
   }
 };
 
-export const fetchStatus = async (areaId) => {
+export const fetchStatus = async (areaId, selected_area) => {
   try {
-    const response = await axios.post(`${API_URL}/get-status`, { areaId });
+    const response = await axios.post(`${API_URL}/get-status`, {
+      areaId,
+      selected_area,
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching area names:", error);
@@ -110,11 +115,12 @@ export const fetchStatus = async (areaId) => {
   }
 };
 
-export const updateNewStatus = async (areaId, checked) => {
+export const updateNewStatus = async (areaId, checked, selected_area) => {
   try {
     const response = await axios.post(`${API_URL}/update-status`, {
       areaId,
       checked,
+      selected_area,
     });
     return response.data;
   } catch (error) {

@@ -75,7 +75,7 @@ export default function CardContainer({ area }) {
     verifyAuth();
 
     loadAssignments();
-  }, []);
+  }, [area]);
 
   const loadAssignments = async () => {
     try {
@@ -145,7 +145,10 @@ export default function CardContainer({ area }) {
   const handleConfirmation = async () => {
     try {
       if (actionType === "delete") {
-        await deleteAssignment(selectedAssignment.area_id);
+        await deleteAssignment({
+          area_id: selectedAssignment.area_id,
+          selected_area: selectedAssignment.selected_area,
+        });
       } else if (actionType === "add") {
         if (
           formValues.area_id &&
@@ -237,7 +240,7 @@ export default function CardContainer({ area }) {
             >
               <CardActionArea
                 component={Link}
-                to={assignment.link}
+                to={assignment.link + "?area=" + area}
                 aria-label={`Open ${assignment.area_name}`}
               >
                 <Box
@@ -487,8 +490,8 @@ export default function CardContainer({ area }) {
           </DialogContent>
           <DialogActions>
             <Alert severity="warning">
-              Attention! When you edit an existing Area ID, the current Area
-              settings with that ID will be overwritten.
+              Attention! When you edit an existing Area ID in this course, the current Area
+              settings with that ID will be overwritten within the course.
             </Alert>
             <Button onClick={handleFormDialogClose}>Cancel</Button>
             <Button onClick={handleConfirmation} color="primary">

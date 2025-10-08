@@ -88,7 +88,7 @@ function TopBar() {
           color="inherit"
           startIcon={<GridViewIcon />}
         >
-          Dashboard
+          Kursauswahl
         </Button>
         <Tooltip title="open menu">
           <IconButton
@@ -156,11 +156,6 @@ function TopBar() {
           {username && (
             <MenuItem component={Link} to="/statistics" onClick={handleClose}>
               Course statistics
-            </MenuItem>
-          )}
-           {username && (
-            <MenuItem component={Link} to="/area-select" onClick={handleClose}>
-              Kursauswahl
             </MenuItem>
           )}
           <MenuItem component={Link} to="/information" onClick={handleClose}>

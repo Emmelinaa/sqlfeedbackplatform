@@ -198,7 +198,7 @@ const AppRoutes = ({ assignments }) => {
     .filter((assignment) => assignment.is_active)
     .forEach((assignment) => {
       routes.push({
-        path: assignment.link,
+        path: "dashboard/" + assignment.link,
         element: (
           <ProtectedRoute
             element={
