@@ -41,7 +41,7 @@ import {
 } from "@mui/material";
 import { checkAuth } from "../../api/loginApi";
 import CircularProgressC from "./circularProgressC";
-export default function CardContainer() {
+export default function CardContainer({ area }) {
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -59,6 +59,7 @@ export default function CardContainer() {
     endpoint: "",
     is_active: false,
     feedback_on: false,
+    selected_area: area,
   });
   const [openFormDialog, setOpenFormDialog] = useState(false);
 
@@ -74,15 +75,19 @@ export default function CardContainer() {
     verifyAuth();
 
     loadAssignments();
-  }, []);
+  }, [area]);
 
   const loadAssignments = async () => {
     try {
       const response = await fetchAssignments();
-      setAssignments(response);
-      console.log(response);
-      if (response.length > 0) {
-        let idArray = response.map((item) => item.area_id);
+
+      // Filter the Assignment-Objekt based on the area
+      const filteredAssignments = response.filter(areaItem => areaItem.selected_area === area);
+
+      setAssignments(filteredAssignments);
+      console.log(filteredAssignments);
+      if (filteredAssignments.length > 0) {
+        let idArray = filteredAssignments.map((item) => item.area_id);
         let maxId = Math.max(...idArray) + 1;
 
         setMaxId(maxId);
@@ -102,6 +107,7 @@ export default function CardContainer() {
       endpoint: "",
       is_active: false,
       feedback_on: false,
+      selected_area: area,
     });
     setOpenFormDialog(true);
   };
@@ -133,18 +139,23 @@ export default function CardContainer() {
       endpoint: "",
       is_active: false,
       feedback_on: false,
+      selected_area: area,
     });
   };
   const handleConfirmation = async () => {
     try {
       if (actionType === "delete") {
-        await deleteAssignment(selectedAssignment.area_id);
+        await deleteAssignment({
+          area_id: selectedAssignment.area_id,
+          selected_area: selectedAssignment.selected_area,
+        });
       } else if (actionType === "add") {
         if (
           formValues.area_id &&
           formValues.area_name &&
           formValues.link &&
-          formValues.endpoint
+          formValues.endpoint &&
+          formValues.selected_area
         ) {
           await addAssignment(formValues);
           window.location.reload();
@@ -156,7 +167,8 @@ export default function CardContainer() {
           formValues.area_id &&
           formValues.area_name &&
           formValues.link &&
-          formValues.endpoint
+          formValues.endpoint &&
+          formValues.selected_area
         ) {
           await updateAssignment(formValues);
           window.location.reload();
@@ -192,6 +204,16 @@ export default function CardContainer() {
     setFormValues({ ...formValues, [name]: value });
   };
 
+  // Depending on the chosen area, the selection for the databases changes
+  const databankOptions = area === "sql-beginner"
+    // SQL-Beginner -> only PostgreSQL
+    ? [ { value: "PostgreSQL", label: "PostgreSQL" } ]
+    // NoSQL-Beginner -> (all) PostgreSQL, Cassandra, Neo4J and MongoDB
+    : [ { value: "PostgreSQL", label: "PostgreSQL" },
+        { value: "Cassandra", label: "Cassandra" },
+        { value: "Neo4J", label: "Neo4J" },
+        { value: "MongoDB", label: "MongoDB" } ];
+
   return (
     <Box
       sx={{
@@ -218,7 +240,7 @@ export default function CardContainer() {
             >
               <CardActionArea
                 component={Link}
-                to={assignment.link}
+                to={assignment.link + "?area=" + area}
                 aria-label={`Open ${assignment.area_name}`}
               >
                 <Box
@@ -360,6 +382,7 @@ export default function CardContainer() {
           <DialogTitle>
             {actionType === "add" ? "Add Assignment" : "Edit Assignment"}
           </DialogTitle>
+          {/* Add Assignment */}
           <DialogContent>
             <TextField
               required
@@ -419,10 +442,10 @@ export default function CardContainer() {
                 onChange={handleFormInputChange}
                 label="Database Endpoint"
               >
-                <MenuItem value="PostgreSQL">PostgreSQL</MenuItem>
-                <MenuItem value="Cassandra">Cassandra</MenuItem>
-                <MenuItem value="Neo4J">Neo4J</MenuItem>
-                <MenuItem value="MongoDB">MongoDB</MenuItem>
+                {databankOptions.map( (dbOption) => (
+                  // Database value and label for the selection menu
+                  <MenuItem key={dbOption.value} value={dbOption.value}> {dbOption.label} </MenuItem> ) )
+                }
               </Select>
             </FormControl>
 
@@ -467,8 +490,8 @@ export default function CardContainer() {
           </DialogContent>
           <DialogActions>
             <Alert severity="warning">
-              Attention! When you edit an existing Area ID, the current Area
-              settings with that ID will be overwritten.
+              Attention! When you edit an existing Area ID in this course, the current Area
+              settings with that ID will be overwritten within the course.
             </Alert>
             <Button onClick={handleFormDialogClose}>Cancel</Button>
             <Button onClick={handleConfirmation} color="primary">

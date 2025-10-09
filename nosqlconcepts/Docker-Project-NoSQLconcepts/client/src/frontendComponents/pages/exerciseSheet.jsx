@@ -4,7 +4,7 @@ import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import Container from "@mui/material/Container";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import SaveIcon from "@mui/icons-material/Save";
 import CheckIcon from "@mui/icons-material/Check";
 import ErrorIcon from "@mui/icons-material/Error";
@@ -67,7 +67,7 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
   overflow: "auto",
 }));
-function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on }) {
+function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_area }) {
   const { username } = useAuth();
   const navigate = useNavigate();
   const [task, setTask] = useState("");
@@ -128,7 +128,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on }) {
         throw new Error("Task number is required");
       }
 
-      const response = await fetchTaskFormData(area_id, username, tasknumber);
+      const response = await fetchTaskFormData(area_id, username, tasknumber, selected_area);
 
       let formDataObj = {};
 
@@ -411,7 +411,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on }) {
       const dataToSend = { title: area_name, areaId: area_id };
       setIsSaved(false);
       navigate(
-        `/download?title=${dataToSend.title}&areaId=${dataToSend.areaId}`
+        `/download?title=${dataToSend.title}&areaId=${dataToSend.areaId}&courseArea=${selected_area}`
       );
     });
   };

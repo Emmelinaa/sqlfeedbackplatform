@@ -32,6 +32,7 @@ import {
   deleteExercise,
   fetchExercises,
   updateExercise,
+  fetchAssignments,
 } from "../../api/adminApi";
 import { fetchAreaNames } from "../../api/mainApi";
 
@@ -46,6 +47,7 @@ const ManageExercises = () => {
   const [formValues, setFormValues] = useState({
     statement_id: 0,
     area_id: "",
+    selected_area: "",
     statement_text: "",
     solution_query: "",
     topic: "",
@@ -66,7 +68,7 @@ const ManageExercises = () => {
       const response = await fetchExercises();
       setExercises(response);
 
-      const response2 = await fetchAreaNames();
+      const response2 = await fetchAssignments();
       setAreaNames(response2);
       /*  const filteredStatementIds = response.filter(
         (exercise) => exercise.area_id === selectedArea
@@ -85,6 +87,7 @@ const ManageExercises = () => {
     setFormValues({
       statement_id: 0,
       area_id: "",
+      selected_area: "",
       statement_text: "",
       solution_query: "",
       topic: "",
@@ -120,6 +123,7 @@ const ManageExercises = () => {
     setFormValues({
       statement_id: 0,
       area_id: "",
+      selected_area: "",
       statement_text: "",
       solution_query: "",
       topic: "",
@@ -189,29 +193,32 @@ const ManageExercises = () => {
     setAreaIdFilter(event.target.value);
   };
   const handleSelectedArea = (event) => {
-    setSelectedArea(event.target.value);
-
+    const selectedValue = event.target.value;
+    const [area_id, selected_area] = selectedValue.split('-');
+    setSelectedArea(selectedValue);
     
-      const filteredStatementIds = exercises.filter(
-        (exercise) => exercise.area_id === event.target.value
-      );
+    const filteredStatementIds = exercises.filter(
+      (exercise) => exercise.area_id === parseInt(area_id)
+    );
       
-if (filteredStatementIds.length > 0) {
-      let idArray = filteredStatementIds.map((item) => item.statement_id);
-      let maxId = Math.max(...idArray) + 1;
-      /* setMaxId(maxId);  */
-      setFormValues({
-        ...formValues,
-        area_id: event.target.value,
-        statement_id: maxId,
-      });
-    } else {
-      setFormValues({
-        ...formValues,
-        area_id: event.target.value,
-        statement_id: 1,
-      });
-    }
+  if (filteredStatementIds.length > 0) {
+        let idArray = filteredStatementIds.map((item) => item.statement_id);
+        let maxId = Math.max(...idArray) + 1;
+        /* setMaxId(maxId);  */
+        setFormValues({
+          ...formValues,
+          area_id: parseInt(area_id),
+          selected_area: selected_area,
+          statement_id: maxId,
+        });
+      } else {
+        setFormValues({
+          ...formValues,
+          area_id: parseInt(area_id),
+          selected_area: selected_area,
+          statement_id: 1,
+        });
+      }
   };
 
   const filteredExercises = exercises.filter((exercise) => {
@@ -338,8 +345,8 @@ if (filteredStatementIds.length > 0) {
               label="Select Area"
             >
               {areamames.map((item) => (
-                <MenuItem key={item.area_id} value={item.area_id}>
-                  {item.area_name}
+                <MenuItem key={item.area_id + "-" + item.selected_area} value={item.area_id + "-" + item.selected_area}>
+                  {item.area_name} - Bereich: {item.selected_area}
                 </MenuItem>
               ))}
             </Select>

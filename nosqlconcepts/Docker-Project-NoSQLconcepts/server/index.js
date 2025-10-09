@@ -176,6 +176,9 @@ const executeQuery = async (query, params, res) => {
     res.json(rows);
   } catch (error) {
     console.error(error, res);
+    if (!res.headersSent) {
+      res.status(500).json({ error: error.message });
+    }
   }
 };
 
@@ -427,6 +430,8 @@ AND task_area_id = $3;`;
       ]);
     } else {
       //const { handleDataStorageInsertQuery } = queries;
+
+      // TODO: Add selected_area
       const handleDataStorageInsertQuery = `INSERT INTO ${table} (
   username,
   statement_id,
@@ -512,10 +517,10 @@ app.get("/api/getHistoryData", async (req, res) => {
 
 // POST /delete-exercises
 app.post("/api/delete-exercises", async (req, res) => {
-  const { statement_id, area_id } = req.body;
+  const { statement_id, area_id, selected_area } = req.body;
   await executeQuery(
     adminQueries.deleteExerciseQuery,
-    [statement_id, area_id],
+    [statement_id, area_id, selected_area],
     res
   );
 });
@@ -534,6 +539,7 @@ app.post("/api/add-exercise", async (req, res) => {
       formValues.maxtime,
       formValues.hint,
       formValues.tasknumber,
+      formValues.selected_area,
     ],
     res
   );
@@ -553,6 +559,7 @@ app.post("/api/update-exercises", async (req, res) => {
       formValues.tasknumber,
       formValues.statement_id,
       formValues.area_id,
+      formValues.selected_area,
     ],
     res
   );
@@ -562,18 +569,34 @@ app.post("/api/update-exercises", async (req, res) => {
 // POST /add-assignments
 app.post("/api/add-assignment", async (req, res) => {
   const { formValues } = req.body;
-  await executeQuery(
-    adminQueries.addAssignmentQuery,
-    [
-      formValues.area_id,
-      formValues.area_name,
-      formValues.descr,
-      formValues.link,
-      formValues.endpoint,
-      formValues.is_active,
-    ],
-    res
-  );
+  try {
+    await pool2.query(
+      adminQueries.addAssignmentQuery,
+      [
+        formValues.area_id,
+        formValues.area_name,
+        formValues.descr,
+        formValues.link,
+        formValues.endpoint,
+        formValues.is_active,
+        formValues.feedback_on,
+        formValues.selected_area,
+      ],
+    );
+
+    // If the add is used on an existing AreaID, all exercises from this assignment before will be deleted
+    await pool2.query(
+      adminQueries.deleteAllExerciseQuery,
+      [
+        formValues.area_id,
+        formValues.selected_area
+      ],
+    );
+    res.json({ success: true });
+  } catch (error) {
+    console.log("Error in /get-assignments:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 // GET /get-assignments
@@ -594,6 +617,7 @@ app.post("/api/update-assignment", async (req, res) => {
       formValues.endpoint,
       formValues.is_active,
       formValues.feedback_on,
+      formValues.selected_area,
     ],
     res
   );
@@ -601,10 +625,10 @@ app.post("/api/update-assignment", async (req, res) => {
 
 // POST /delete-assignment
 app.post("/api/delete-assignment", async (req, res) => {
-  const { area_id } = req.body;
+  const { area_id, selected_area } = req.body;
   await executeQuery(
     adminQueries.deleteAssignmentQuery,
-    [ area_id],
+    [area_id, selected_area],
     res
   );
 });
@@ -639,20 +663,20 @@ app.post("/api/delete-allhistorydata", async (req, res) => {
 
 //POST /get-status
 app.post("/api/get-status", async (req, res) => {
-  const { areaId } = req.body;
+  const { areaId, selected_area } = req.body;
   await executeQuery(
     adminQueries.getStatusQuery,
-    [ areaId],
+    [areaId, selected_area],
     res
   );
 });
 
 //POST /update-status
 app.post("/api/update-status", async (req, res) => {
-  const { areaId, checked } = req.body;
+  const { areaId, checked, selected_area } = req.body;
   await executeQuery(
     adminQueries.updateStatusQuery,
-    [ areaId, checked],
+    [ areaId, checked, selected_area],
     res
   );
 });

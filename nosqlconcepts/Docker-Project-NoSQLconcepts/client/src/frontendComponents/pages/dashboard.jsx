@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Box } from "@mui/material";
 import CardContainer from "../components/dashboardComponents/cardContainer";
 import GreetingHeader from "../components/dashboardComponents/greetingHeader";
@@ -8,14 +8,34 @@ import RankingList from "../components/dashboardComponents/rankingList";
 import Grid from "@mui/material/Grid";
 import { useAuth } from '../App';
 import SurveyLink from "../components/surveyComponents/surveyLink";
+import { useLocation, useNavigate } from "react-router-dom";
 
 
 const NewDashboard = () => {
   const { username } = useAuth();
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Redirect to /area-select if no valid area is entered
+  /*useEffect(() => {
+    const paramsError = new URLSearchParams(location.search);
+    const areaError = paramsError.get("area");
+    if ( (location.pathname === "/dashboard" && !location.search)
+      || (areaError !== "nosqlconcepts" && areaError !== "sql-beginner") ) {
+          navigate("/area-select");
+        }
+  }, [location, navigate]);*/
+  const courseParams = new URLSearchParams(location.search);
+  const courseArea = courseParams.get("area");
+
   return (
     <Box>
       <GreetingHeader username={username} />
-      <CardContainer />
+
+      {/* Filter the dashboard content based on the selected course area */}
+      <CardContainer area={courseArea} />
+
       <Box sx={{ flexGrow: 1, p:2 }}>
         <Grid container spacing={2}>
          
