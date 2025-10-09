@@ -18,15 +18,14 @@ const NewDashboard = () => {
   const location = useLocation();
 
   // Redirect to /area-select if no valid area is entered
-  useEffect(() => {
+  /*useEffect(() => {
     const paramsError = new URLSearchParams(location.search);
     const areaError = paramsError.get("area");
     if ( (location.pathname === "/dashboard" && !location.search)
       || (areaError !== "nosqlconcepts" && areaError !== "sql-beginner") ) {
           navigate("/area-select");
         }
-  }, [location, navigate]);
-  
+  }, [location, navigate]);*/
   const courseParams = new URLSearchParams(location.search);
   const courseArea = courseParams.get("area");
 
