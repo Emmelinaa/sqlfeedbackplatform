@@ -101,6 +101,8 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [confirmCallback, setConfirmCallback] = useState(null);
 
+  const [queryFeedback, setQueryFeedback] = useState("");
+
   const handleF5 = (event) => {
     if (event.key === "F5") {
       event.preventDefault();
@@ -255,13 +257,20 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     if (endpoint === "MongoDB") {
       apiRoute = "/execute-mql";
     }
+
     try {
       const response = await sendToExecute(
         apiRoute,
         execQuery,
         taskNumber,
-        area_id
+        area_id,
+        selected_area
       );
+      console.log("SQL query of the student: " + execQuery);
+      console.log("Correct SQL query:", response.data.solutionQuery);
+      console.log("queryFeedback: ", response.data.queryFeedback);
+
+      setQueryFeedback(response.data.queryFeedback || "");
 
       if (typeof response.data.userQueryResult === "string") {
         setQueryResult([{ output: response.data.userQueryResult }]);
@@ -304,6 +313,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
       }
       setError("");
     } catch (error) {
+      setQueryFeedback("");
       setError(
         `Error: ${error.response.data.error}. Note: Please try again, if you think that this task is solvable with a query. You can also write a comment in the partial solution textfield, explaining why your solution is correct. In some cases this message occurs because there is no solution query (use the textfield for your solution then).`
       );
@@ -615,6 +625,42 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                           {<p>Result Size: {formData.resultSize}</p>}
                         </Box>
                       </Box>
+                      <InputLabel> SQL-distance (Box): </InputLabel>
+                      <Box
+                          sx={{
+                            padding: "10px",
+                            borderRadius: "5px",
+                            border: "1px solid black",
+                            minHeight: 150,
+                            whiteSpace: "pre-wrap",
+                          }}
+                        >
+                        { queryFeedback || "SQL-distance:"}
+                      </Box>
+
+                      <InputLabel> SQL-distance: </InputLabel>
+                      <Box
+                          sx={{
+                            borderRadius: "5px",
+                            border: "1px solid black",
+                            minHeight: 150,
+                            whiteSpace: "pre-wrap",
+                          }}
+                        >
+                        {
+                          <> <details>
+                            <summary>Remove (excess) column-reference from a select-element expression.</summary>
+                            <div>The following is excess: first_name</div>
+                          </details>
+                          
+                          <details>
+                              <summary> [..] </summary>
+                              <div> [..] </div>
+                            </details> </>
+                          }
+                      </Box>
+
+
                       <hr></hr>
                       <InputLabel id="partial-solution-label">
                         Your partial solution/further comments:

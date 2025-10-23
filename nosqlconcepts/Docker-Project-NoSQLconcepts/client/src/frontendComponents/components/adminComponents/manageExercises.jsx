@@ -146,7 +146,8 @@ const ManageExercises = () => {
           formValues.area_id &&
           formValues.statement_id &&
           formValues.statement_text &&
-          formValues.subtasknumber
+          formValues.subtasknumber &&
+          formValues.selected_area
         ) {
           await addExercise(formValues);
         } else {
@@ -159,6 +160,7 @@ const ManageExercises = () => {
           formValues.statement_id &&
           formValues.statement_text &&
           formValues.subtasknumber
+          // && formValues.selected_area
         ) {
           await updateExercise(formValues);
         } else {
@@ -194,7 +196,10 @@ const ManageExercises = () => {
   };
   const handleSelectedArea = (event) => {
     const selectedValue = event.target.value;
-    const [area_id, selected_area] = selectedValue.split('-');
+    const firstHyphenIndex = selectedValue.indexOf('-');
+    const area_id = selectedValue.substring(0, firstHyphenIndex);
+    const selected_area = selectedValue.substring(firstHyphenIndex + 1);
+
     setSelectedArea(selectedValue);
     
     const filteredStatementIds = exercises.filter(

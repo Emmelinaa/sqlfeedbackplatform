@@ -22,6 +22,8 @@ require("dotenv").config();
 const app = express();
 const key = Math.random() * (10000000000 - 100000000) + 100000000;
 
+const sqlQueryDistance = require('./evaluation-tool/sql-query-distance/dist/index');
+
 const oneDay = 1000 * 60 * 60 * 24;
 //################# General Settings ######################################################
 // Middleware
@@ -955,7 +957,7 @@ const executeQueryWithTimeout = (queryFunction, timeout) => {
 // Execute SQL queries
 // check if query is equal to the expected solution
 app.post("/api/execute-sql", async (req, res) => {
-  const { execQuery, taskNumber, taskAreaId } = req.body;
+  const { execQuery, taskNumber, taskAreaId, selected_area } = req.body;
 
   try {
     // Execute user's SQL query
@@ -969,9 +971,244 @@ app.post("/api/execute-sql", async (req, res) => {
         // Check if the user's query matches the expected solution
         const { getSolutionQuery } = mainQueries;
         const expectedSolutionResult = await executeQueryWithTimeout(
-          () => pool2.query(getSolutionQuery, [taskNumber, taskAreaId]),
+          () => pool2.query(getSolutionQuery, [taskNumber, taskAreaId, selected_area]),
           50000
         );
+
+        console.log("----------------------------------------------");
+        console.log("Student Query (SQL):", execQuery);
+        console.log("Solution Query (SQL):", expectedSolutionResult.rows[0].solution_query);
+        console.log("----------------------------------------------");
+
+        let distance, steps, path;
+        // Reused configuration values (config_atomic, config_horizontal, config_shortcut, config)
+        // from SQL-Query-Distance (https://github.com/FAU-CS6/sql-query-distance)
+        // file: ./sql-query-distance/test.js
+        // License: MIT
+        const config_atomic = `
+        setDistinct:2
+        unsetDistinct:2
+        addSelectElement:1
+        removeSelectElement:1
+        addSelectAsterisk:1
+        removeSelectAsterisk:1
+        setSelectAsteriskTable:10
+        unsetSelectAsteriskTable:1
+        addSelectColumnReference:1
+        removeSelectColumnReference:1
+        setSelectColumnReferenceTable:10
+        unsetSelectColumnReferenceTable:1
+        addSelectLiteral:1
+        removeSelectLiteral:1
+        addSelectNot:1
+        removeSelectNot:1
+        addSelectAggregationFunction:1
+        removeSelectAggregationFunction:1
+        setSelectAggregationFunctionDistinct:2
+        unsetSelectAggregationFunctionDistinct:2
+        addSelectBinaryExpression:1
+        removeSelectBinaryExpression:1
+        setSelectAlias:2
+        unsetSelectAlias:0
+        addFromElement:2
+        removeFromElement:2
+        setTableJoinType:1
+        unsetTableJoinType:1
+        addFromColumnReference:1
+        removeFromColumnReference:1
+        setFromColumnReferenceTable:10
+        unsetFromColumnReferenceTable:1
+        addFromLiteral:1
+        removeFromLiteral:1
+        addFromNot:1
+        removeFromNot:1
+        addFromBinaryExpression:1
+        removeFromBinaryExpression:1
+        setFromAlias:10
+        unsetFromAlias:1
+        addWhereColumnReference:1
+        removeWhereColumnReference:1
+        setWhereColumnReferenceTable:10
+        unsetWhereColumnReferenceTable:1
+        addWhereLiteral:1
+        removeWhereLiteral:1
+        addWhereNot:1
+        removeWhereNot:1
+        addWhereBinaryExpression:1
+        removeWhereBinaryExpression:1
+        addGroupbyElement:1
+        removeGroupbyElement:2
+        addGroupbyColumnReference:1
+        removeGroupbyColumnReference:1
+        setGroupbyColumnReferenceTable:10
+        unsetGroupbyColumnReferenceTable:1
+        addGroupbyLiteral:1
+        removeGroupbyLiteral:1
+        addGroupbyNot:1
+        removeGroupbyNot:1
+        addGroupbyBinaryExpression:1
+        removeGroupbyBinaryExpression:1
+        addHavingColumnReference:1
+        removeHavingColumnReference:1
+        setHavingColumnReferenceTable:10
+        unsetHavingColumnReferenceTable:1
+        addHavingLiteral:1
+        removeHavingLiteral:1
+        addHavingNot:1
+        removeHavingbyNot:1
+        addHavingAggregationFunction:1
+        removeHavingAggregationFunction:1
+        setHavingAggregationFunctionDistinct:2
+        unsetHavingAggregationFunctionDistinct:2
+        addHavingBinaryExpression:1
+        removeHavingBinaryExpression:1
+        addOrderbyElement:1
+        removeOrderbyElement:1
+        setOrderbyDescending:1
+        unsetOrderbyDescending:1
+        addOrderbyColumnReference:1
+        removeOrderbyColumnReference:1
+        setOrderbyColumnReferenceTable:10
+        unsetOrderbyColumnReferenceTable:1
+        addOrderbyLiteral:1
+        removeOrderbyLiteral:1
+        addOrderbyNot:1
+        removeOrderbyNot:1
+        addOrderbyAggregationFunction:1
+        removeOrderbyAggregationFunction:1
+        setOrderbyAggregationFunctionDistinct:2
+        unsetOrderbyAggregationFunctionDistinct:2
+        addOrderbyBinaryExpression:1
+        removeOrderbyBinaryExpression:1
+        `;
+        const config_horizontal = `
+        swapSelectElements:1
+        changeSelectAsteriskTable:1
+        changeSelectColumnReferenceColumn:1
+        changeSelectColumnReferenceTable:1
+        changeSelectLiteralValue:1
+        changeSelectAggregationFunctionAggregation:1
+        changeSelectBinaryExpressionOperator:1
+        swapSelectBinaryExpressionArguments:0
+        swapSelectBinaryExpressionNesting:0
+        mirrorSelectBinaryExpressionInequation:0
+        changeSelectAlias:2
+        swapFromElements:0
+        changeFromJoinType:1
+        changeFromColumnReferenceColumn:1
+        changeFromColumnReferenceTable:1
+        changeFromLiteralValue:1
+        changeFromBinaryExpressionOperator:1
+        swapFromBinaryExpressionArguments:0
+        swapFromBinaryExpressionNesting:0
+        mirrorFromBinaryExpressionInequation:0
+        changeFromAlias:2
+        changeWhereColumnReferenceColumn:1
+        changeWhereColumnReferenceTable:1
+        changeWhereLiteralValue:1
+        changeWhereBinaryExpressionOperator:1
+        swapWhereBinaryExpressionArguments:0
+        swapWhereBinaryExpressionNesting:0
+        mirrorWhereBinaryExpressionInequation:0
+        swapGroupbyElements:0
+        changeGroupbyColumnReferenceColumn:1
+        changeGroupbyColumnReferenceTable:1
+        changeGroupbyLiteralValue:1
+        changeGroupbyBinaryExpressionOperator:1
+        swapGroupbyBinaryExpressionArguments:0
+        swapGroupbyBinaryExpressionNesting:0
+        mirrorGroupbyBinaryExpressionInequation:0
+        changeHavingColumnReferenceColumn:1
+        changeHavingColumnReferenceTable:1
+        changeHavingLiteralValue:1
+        changeHavingAggregationFunctionAggregation:1
+        changeHavingBinaryExpressionOperator:1
+        swapHavingBinaryExpressionArguments:0
+        swapHavingBinaryExpressionNesting:0
+        mirrorHavingBinaryExpressionInequation:0
+        changeOrderbyElements:1
+        changeOrderbyColumnReferenceColumn:1
+        changeOrderbyColumnReferenceTable:1
+        changeOrderbyLiteralValue:1
+        changeOrderbyAggregationFunctionAggregation:1
+        changeOrderbyBinaryExpressionOperator:1
+        swapOrderbyBinaryExpressionArguments:0
+        swapOrderbyBinaryExpressionNesting:0
+        mirrorOrderbyBinaryExpressionInequation:0
+        `;
+        const config_shortcut = `
+        applySelectTautologyLaw:0
+        applySelectDoubleNegationLaw:0
+        applySelectDistributiveLaw:0
+        applySelectDeMorgan:0
+        applySelectAbsorptionLaw:0
+        applyFromTautologyLaw:0
+        applyFromDoubleNegationLaw:0
+        applyFromDistributiveLaw:0
+        applyFromDeMorgan:0
+        applyFromAbsorptionLaw:0
+        applyWhereTautologyLaw:0
+        applyWhereDoubleNegationLaw:0
+        applyWhereDistributiveLaw:0
+        applyWhereDeMorgan:0
+        applyWhereAbsorptionLaw:0
+        applyGroupbyTautologyLaw:0
+        applyGroupbyDoubleNegationLaw:0
+        applyGroupbyDistributiveLaw:0
+        applyGroupbyDeMorgan:0
+        applyGroupbyAbsorptionLaw:0
+        applyHavingTautologyLaw:0
+        applyHavingDoubleNegationLaw:0
+        applyHavingDistributiveLaw:0
+        applyHavingDeMorgan:0
+        applyHavingAbsorptionLaw:0
+        applyOrderbyTautologyLaw:0
+        applyOrderbyDoubleNegationLaw:0
+        applyOrderbyDistributiveLaw:0
+        applyOrderbyDeMorgan:0
+        applyOrderbyAbsorptionLaw:0
+        moveInnerJoinConditionToWhere:0
+        moveWhereToInnerJoinCondition:0
+        expandAsterisk:0
+        collapseAsterisk:0
+        `;
+        const config = config_atomic + config_horizontal + config_shortcut;
+
+        // schema based on the database for the exercises
+        const schema = `
+        students ( student_id, first_name, last_name, degree_program, graduation_year )
+        graduationCeremonies ( ceremony_id, date, location, note )
+        invitations ( invitation_id, student_id [Students], ceremony_id [GraduationCeremonies], rsvp )
+        programItems ( item_id, ceremony_id [GraduationCeremonies], title, start_time, duration_minutes )
+        sponsors ( sponsor_id, name, amount )
+        `;
+
+        try {
+          console.log(`calculating...`);
+          console.time();
+          [distance, steps, path] = await
+            sqlQueryDistance.parseAndCalculateDistance(
+              expectedSolutionResult.rows[0].solution_query, execQuery, schema, config);
+          console.timeEnd();
+
+          queryFeedback = sqlQueryDistance.stringifyDistance(distance, steps, path);
+          console.log("sqlQueryDistance Feedback:", queryFeedback);
+
+          console.log("===========================================================");
+          queryFeedback_new = sqlQueryDistance.stringifyDistance_new(distance, steps, path);
+          console.log("Edited sqlQueryDistance Feedback:", queryFeedback_new);
+          console.log("===========================================================");
+
+          console.log("++++++++++++++++++++++++++++++++++++++++++++++");
+          console.log("Distance: ", distance);
+          console.log("Steps: ", JSON.stringify(steps, null, 2));
+          console.log("Path: ", JSON.stringify(path, null, 2));
+          console.log("++++++++++++++++++++++++++++++++++++++++++++++");
+
+        } catch (error) {
+          console.error("Error calculating the sqlQueryDistance:", error);
+        }
+          
         const solution = await executeQueryWithTimeout(
           () => pool.query(expectedSolutionResult.rows[0].solution_query),
           50000
@@ -980,11 +1217,17 @@ app.post("/api/execute-sql", async (req, res) => {
         res.json({
           userQueryResult: userQueryResult.rows,
           expectedResult: solution.rows,
+          queryFeedback: queryFeedback,
+          userQuery: execQuery,
+          solutionQuery: expectedSolutionResult.rows[0].solution_query,
+          // querySteps: steps,
+          // queryDistance: distance,
         });
       } catch (error) {
         res.json({
           userQueryResult: userQueryResult.rows,
           expectedResult: "no solution",
+          // solutionQuery: expectedSolutionResult.rows[0].solution_query,
         });
       }
     } else {
