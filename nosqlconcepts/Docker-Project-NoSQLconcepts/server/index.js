@@ -1196,7 +1196,7 @@ app.post("/api/execute-sql", async (req, res) => {
 
           console.log("===========================================================");
           queryFeedback_new = sqlQueryDistance.stringifyDistance_new(distance, steps, path);
-          console.log("Edited sqlQueryDistance Feedback:", queryFeedback_new);
+          console.log("Edited sqlQueryDistance Feedback: ", queryFeedback_new);
           console.log("===========================================================");
 
           console.log("++++++++++++++++++++++++++++++++++++++++++++++");
@@ -1207,6 +1207,7 @@ app.post("/api/execute-sql", async (req, res) => {
 
         } catch (error) {
           console.error("Error calculating the sqlQueryDistance:", error);
+          queryFeedback_new = "ERROR: " + error.message;
         }
           
         const solution = await executeQueryWithTimeout(
@@ -1214,10 +1215,14 @@ app.post("/api/execute-sql", async (req, res) => {
           50000
         );
         // Send both results to the client
+        console.log("===========================================================");
+        console.log(queryFeedback_new);
+        console.log("===========================================================");
         res.json({
           userQueryResult: userQueryResult.rows,
           expectedResult: solution.rows,
           queryFeedback: queryFeedback,
+          queryFeedback_new: queryFeedback_new,
           userQuery: execQuery,
           solutionQuery: expectedSolutionResult.rows[0].solution_query,
           // querySteps: steps,
@@ -1227,6 +1232,7 @@ app.post("/api/execute-sql", async (req, res) => {
         res.json({
           userQueryResult: userQueryResult.rows,
           expectedResult: "no solution",
+          queryFeedback_new: queryFeedback_new || ""
           // solutionQuery: expectedSolutionResult.rows[0].solution_query,
         });
       }

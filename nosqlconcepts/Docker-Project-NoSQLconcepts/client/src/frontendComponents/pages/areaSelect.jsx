@@ -31,7 +31,7 @@ const NewAreaSelect = () => {
         if (nosqlPassword === rightNoSQLPassword) {
             navigate("/dashboard?area=nosqlconcepts");
         } else {
-            setNosqlError("Falsches Passwort!");
+            setNosqlError("Wrong Password!");
         }
     };
 
@@ -40,9 +40,14 @@ const NewAreaSelect = () => {
         if (sqlPassword === rightSQLPassword) {
             navigate("/dashboard?area=sql-beginner");
         } else {
-            setSQLError("Falsches Passwort!");
+            setSQLError("Wrong Password!");
         }
     };
+
+    // TODO: /testingArea
+    const handleTestArea = () => {
+        navigate("/testingArea")
+    }
 
     return (
         <Box>
@@ -50,10 +55,11 @@ const NewAreaSelect = () => {
             <Box sx={ { flexGrow: 1, p: 2 } }>
 
                 <Box sx={ { textAlign: "center", mb: 3 } }>
-                    <h2>Kursauswahl</h2>
-                    <p>Wählen Sie einen Bereich aus. Das zugehörige Passwort finden Sie auf Ihrer Kursseite.</p>
+                    <h2>Course Selection</h2>
+                    <p>Select a course area. You can find the corresponding password on your course page.</p>
                 </Box>
 
+                {/*NoSQLconcepts*/}
                 <Grid container justifyContent="center" spacing={5}>
                     <Grid item xs={12} md="auto" title="NoSQLconcepts">
                         <Box sx={ {
@@ -75,11 +81,10 @@ const NewAreaSelect = () => {
                             </span>
 
                             <TextField
-                                label="Passwort"
+                                label="Password"
                                 type="password"
-                                // placeholder="Passwort"
                                 value={nosqlPassword}
-                                onChange={e => setNosqlPassword(e.target.value)}
+                                onChange={e => setNosqlPassword(e.target.value) }
                                 sx={ { mt: "15px", p: "5px", width: "80%" } }
                                 InputProps={ { style: { backgroundColor: "#fff" } } }
                             />
@@ -97,12 +102,13 @@ const NewAreaSelect = () => {
                                     marginTop: "20px" } }
                                 onClick={handleNosqlLogin}
                                 >
-                                Auswählen
+                                Select
                             </button>
                             {nosqlError && <div style={ { color: "red", marginTop: "8px" } }>{nosqlError}</div>}
                         </Box>  
                     </Grid>
 
+                    {/*SQL-Beginner*/}
                     <Grid item xs={12} md="auto" title="SQL-Beginner">
                         <Box sx={ {
                             width: 350,
@@ -123,11 +129,10 @@ const NewAreaSelect = () => {
                             </span>
                             
                             <TextField
-                                label="Passwort"
+                                label="Password"
                                 type="password"
-                                // placeholder="Passwort"
                                 value={sqlPassword}
-                                onChange={e => setSQLPassword(e.target.value)}
+                                onChange={e => setSQLPassword(e.target.value) }
                                 sx={ { mt: "15px", p: "5px", width: "80%" } }
                                 InputProps={ { style: { backgroundColor: "#fff" } } }
                             />
@@ -145,11 +150,73 @@ const NewAreaSelect = () => {
                                     marginTop: "20px" } }
                                 onClick={handleSQLLogin}
                                 >
-                                Auswählen
+                                Select
                             </button>
                             {sqlError && <div style={ { color: "red", marginTop: "8px" } }>{sqlError}</div>}
                         </Box>
                     </Grid>
+
+                    {/*SQL-Test-Area*/}
+                    <Grid item xs={12} title="SQL-Test-Area">
+                        <Box sx={ {
+                            width: 450,
+                            height: 150,
+                            bgcolor: "#F7F9FC",
+                            borderRadius: 3,
+                            border: "solid 2px #E4E9F0",
+                            p: 2,
+
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            margin: "0 auto",
+                            } }
+                        >
+                            <span style={ { fontSize: "21px" } }>
+                                SQL Test Area
+                            </span>
+
+                            <Box sx={ {
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            margin: "8px",
+                            width: "100%",
+                            alignItems: "center",
+                            p: 1.5,
+                            } }
+                            >
+                                <p style={ { margin: 0 } }>
+                                    Here you can test out SQL queries <br></br>
+                                    anytime without any exercises.
+                                </p>
+                                
+                                <button
+                                    type="button"
+                                    id="test_area"
+                                    style={ {
+                                        color: "black",
+                                        borderRadius: 5,
+                                        backgroundColor: "#388E3C",
+                                        color: "white",
+                                        border: "2px solid #388E3C",
+                                        cursor: "pointer",
+                                        padding: "5px 15px",
+                                        marginLeft: "auto",
+                                        marginRight: "20px",
+                                    } }
+                                    onClick={ () => {
+                                        handleTestArea();
+                                        console.log("Test Area SQL Button has been clicked");
+                                    } }
+                                    >
+                                    Select
+                                </button>
+                            </Box>
+                        </Box> 
+                    </Grid>
+
                     <Grid item xs={12}>
                         <hr style={ { width: "750px", margin: "20px auto", border: "1px solid #b1b6bbff" } } />
                     </Grid>
@@ -157,7 +224,7 @@ const NewAreaSelect = () => {
                 </Grid>
 
                 <Box sx={ { textAlign: "center", mb: 3 } }>
-                    <p>Sie können später jederzeit wechseln.</p>
+                    <p>You can switch at any time later.</p>
                 </Box>
 
             </Box>

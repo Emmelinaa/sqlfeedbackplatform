@@ -520,16 +520,42 @@ function stringifyDistance(distance, steps = null, path = null) {
     return result;
 }
 
-function diff(a, b) {
-  const moreQuery = a.split(" ");
-  const lessQuery = b.split(" ");
+function tokenize(queryString) {
+  return queryString.split( /(,|\s+)/ ).map( s => s.trim() ).filter(Boolean);
+}
 
+function diff(a, b) {
+  const moreQuery = tokenize(a);
+  const lessQuery = tokenize(b);
+  let result = "";
+
+  // Left pointer marks the first difference from the left
+  let leftShardedPointer = 0;
   for (let i = 0; i < Math.max(moreQuery.length, lessQuery.length); i++) {
     if (moreQuery[i] !== lessQuery[i]) {
-      return moreQuery[i] || "";
+        leftShardedPointer = i;
+        break
     }
   }
-  return "";
+
+  // Right pointers mark the first difference from the right
+  let rightMorePointer = moreQuery.length - 1;
+  let rightLessPointer = lessQuery.length - 1;
+  while (
+    rightMorePointer >= leftShardedPointer &&
+    rightLessPointer >= leftShardedPointer &&
+    moreQuery[rightMorePointer] === lessQuery[rightLessPointer]
+  ) {
+    rightMorePointer--;
+    rightLessPointer--;
+  }
+
+  // Get the String between two pointers
+  for (let i = leftShardedPointer; i <= rightMorePointer; i++) {
+    result += (moreQuery[i] || "") + " ";
+  }
+
+  return result.trim();
 }
 
 
@@ -537,6 +563,7 @@ function stringifyDistance_new(distance, steps = null, path = null) {
     if (distance == Infinity)
         return `Destination could not be reached within the maximum distance.`;
     // let result = `Total Distance: ${distance}\n`;
+    let diffElement = "";
     let newOrder =  `Total Distance: ${distance}\n`;
     let stringifySteps = steps != null, stringifyPath = path != null;
 
@@ -548,20 +575,19 @@ function stringifyDistance_new(distance, steps = null, path = null) {
 
         for (let i = 0; i < combinedCount; ++i) {
             if (stringifySteps) {
-                newOrder += `\n\n>>> (${i}) ${stringifyEdit(steps[i])}.`;
+                newOrder += `\n\n>>>${stringifyEdit(steps[i])}.`;
             }
                 
             if (stringifySteps) {
 
                 if (stringifyEdit(steps[i]).includes("excess")) {
-
-                    const diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));
-                    newOrder += `\n\n(${i}) The following is excess: ${diffElement}`;
+                    diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));
+                    newOrder += `\n\nThe following is not needed: ${diffElement}`;
                 } else if (stringifyEdit(steps[i]).includes("missing")) {
-                    const diffElement = diff(stringifyQuery(path[i+1]), stringifyQuery(path[i]));
-                    newOrder += `\n\n(${i}) The following is missing: ${diffElement}`;
+                    diffElement = diff(stringifyQuery(path[i+1]), stringifyQuery(path[i]));
+                    newOrder += `\n\nThe following is missing: ${diffElement}`;
                 } else {
-                    newOrder += `\n\n(${i}) No difference has been found. (missing)`;
+                    newOrder += `\n\nNo difference has been found. (missing)`;
                 }
                     
             } else {
@@ -569,15 +595,15 @@ function stringifyDistance_new(distance, steps = null, path = null) {
             }    
             
         }
-
-        for (let i = combinedCount; i < editCount; ++i) {
+        // Left over edits without queries & Left over queries without edits
+        /*for (let i = combinedCount; i < editCount; ++i) {
             console.log(`(${i})`, "Left over edit step: ", `${stringifyEdit(steps[i])}`);
             newOrder += `\n\n>>> ${stringifyEdit(steps[i])}.`;
         }
         for (let i = combinedCount; i < queryCount; ++i) {
             console.log(`(${i})`, "Left over query step: ", `${stringifyQuery(path[i])}`);
             newOrder += `\n\n${stringifyQuery(path[i])};`;
-        }
+        }*/
 
     }
 
