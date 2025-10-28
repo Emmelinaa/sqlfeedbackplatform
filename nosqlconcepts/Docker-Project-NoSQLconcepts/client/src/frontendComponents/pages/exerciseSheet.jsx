@@ -768,7 +768,69 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                           </Box>
                         </>
                       )}
+                      <hr></hr>
+                      {/*TODO: if else ( ? : ) to check for an available LLM tip */}
+                      {feedback_on && (
+                        <>
+                        <Typography variant="h6" gutterBottom>
+                            LLM learning tip
+                          </Typography>
+                          <Box
+                            sx={ {
+                              padding: "10px",
+                              borderRadius: "5px",
+                              border: "black",
+                            } }
+                          >
+                            {<p>An LLM learning tip [..]</p>}
+                          </Box>
+                              
+                        {/*Available LLM learning tip*/}
+                        <button
+                          type="button"
+                          id="test_area"
+                          style={ {
+                            color: "black",
+                            borderRadius: 5,
+                            backgroundColor: "#388E3C",
+                            color: "white",
+                            border: "2px solid #388E3C",
+                            cursor: "pointer",
+                            padding: "5px 15px",
+                            marginLeft: "auto",
+                            marginRight: "20px",
+                          } }
+                          onClick={ () => {
+                            console.log("Available LLM learning tip");
+                          } }
+                        >
+                          Available LLM learning tip
+                        </button>
 
+                        {/*No available LLM learning tip.*/}
+                        <button
+                          type="button"
+                          id="test_area"
+                          style={ {
+                            color: "black",
+                            borderRadius: 5,
+                            backgroundColor: "#9c9c9cff",
+                            color: "white",
+                            border: "2px solid #939393ff",
+                            cursor: "pointer",
+                            padding: "5px 15px",
+                            marginLeft: "auto",
+                            marginRight: "20px",
+                          } }
+                          onClick={ () => {
+                            console.log("No available LLM learning tip");
+                          } }
+                        >
+                          No available LLM learning tip
+                        </button>
+
+                        </>
+                      )}
 
                       <hr></hr>
                       <InputLabel id="partial-solution-label">

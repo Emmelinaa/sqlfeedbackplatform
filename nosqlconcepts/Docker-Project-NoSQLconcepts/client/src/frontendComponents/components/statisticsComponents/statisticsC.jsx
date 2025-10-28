@@ -8,6 +8,7 @@ ATTENTION: If this code is to be implemented in the main tool, please note the f
 
 import React, { useState, useEffect } from "react";
 import DownloadIcon from "@mui/icons-material/Download";
+import { Divider } from "@mui/material";
 import {
   FormControl,
   InputLabel,
@@ -48,6 +49,8 @@ let cardStyle = {
   textAlign: "center",
   overflow: "auto",
 };
+
+const isSQL = true;
 
 function StatisticsC() {
   //Defintions for the data, selection bars and theme
@@ -324,6 +327,8 @@ function StatisticsC() {
           ))}
         </Select>
       </Grid>
+
+      {/*TOP -- Needed Time & Difficulty */}
       {filteredData.length > 0 && (
         <>
           <Grid item xs={12} md={6}>
@@ -363,6 +368,7 @@ function StatisticsC() {
               </Button>
             </Box>
           </Grid>
+
           <Grid item xs={12} md={6}>
             <Box
               height="100%"
@@ -408,6 +414,7 @@ function StatisticsC() {
           </Grid>
         </>
       )}
+
       {/* Message when no task is selected */}
       {/* {selectedStatementId == 0 && (
         <Grid container spacing={2} justify="flex-start">
@@ -433,8 +440,101 @@ function StatisticsC() {
         </>
       )}
 
-      {filteredAreaData.length > 0 && (
+      {/*TOP -- 2 x top: missing & excess */}
+      {filteredAreaData.length > 0 && isSQL && ( 
         <>
+
+          {/* TOP - Excess */}
+          <Grid item xs={12} md={6}>
+            <Box
+              height="100%"
+              /* backgroundColor={colors.primary[400]} */
+              sx={cardStyle}
+            >
+              <Typography>User Error Excess Types for Selected Task:</Typography>
+              <Typography>
+                {/* Most common user error: {commonErrorExcessT} ({errorCountExcessT}, "x") } {" "} */}
+                User Error Excess Count: 8 x {" "}
+              </Typography>
+              <BarChart
+                xAxis={[
+                  {
+                    scaleType: "band",
+                    data: ["Distinct", "Element", "Table", "Column", ".." ],
+                    label: "Error Excess Types",
+                  },
+                ]}
+                yAxis={[
+                  {
+                    scaleType: "linear",
+                    label: "frequency",
+                  },
+                ]}
+                series={areatimedata}
+                /* colors={[colors.blueAccent[400], colors.greenAccent[400]]} */
+                padding={0.3}
+                width={500}
+                height={300}
+              />
+              <Button
+                onClick={downloadAreaData}
+              >
+                Download CSV <DownloadIcon></DownloadIcon>
+              </Button>
+            </Box>
+          </Grid>
+
+          {/* TOP - Missing */}
+          <Grid item xs={12} md={6}>
+            <Box
+              height="100%"
+              /* backgroundColor={colors.primary[400]} */
+              sx={cardStyle}
+            >
+              <Typography>User Error Missing Types for Selected Task:</Typography>
+              <Typography>
+                {/* Most common user error: {commonErrorMissingT} ({errorCountMissingT}, "x") } {" "} */}
+                User Error Missing Count: 21 x {" "}
+              </Typography>
+              <BarChart
+                xAxis={[
+                  {
+                    scaleType: "band",
+                    data: ["Distinct", "Element", "Table", "Column", ".." ],
+                    label: "Error Missing Types",
+                  },
+                ]}
+                yAxis={[
+                  {
+                    scaleType: "linear",
+                    label: "frequency",
+                  },
+                ]}
+                series={areatimedata}
+                /* colors={[colors.blueAccent[400], colors.greenAccent[400]]} */
+                padding={0.3}
+                width={500}
+                height={300}
+              />
+              <Button
+                onClick={downloadAreaData}
+              >
+                Download CSV <DownloadIcon></DownloadIcon>
+              </Button>
+            </Box>
+          </Grid>
+
+        </>
+      )}
+
+      <Grid item xs={12}>
+        <Divider sx={ { my: 2, backgroundColor: "black", height: "2px" } } />
+      </Grid>
+
+      {/*BOTTOM -- Needed Time & Difficulty */}
+      {filteredAreaData.length > 0 && isSQL && (
+        <>
+
           <Grid item xs={12} md={6}>
             <Box
               height="100%"
@@ -474,6 +574,7 @@ function StatisticsC() {
               </Button>
             </Box>
           </Grid>
+
           <Grid item xs={12} md={6}>
             <Box
               height="100%"
@@ -517,8 +618,98 @@ function StatisticsC() {
               </Button>
             </Box>
           </Grid>
+
         </>
       )}
+
+
+      {/*BOTTOM -- 2 x bottom: missing & excess */}
+      {filteredAreaData.length > 0 && ( 
+        <>
+
+          {/* BOTTOM - Excess */}
+          <Grid item xs={12} md={6}>
+            <Box
+              height="100%"
+              /* backgroundColor={colors.primary[400]} */
+              sx={cardStyle}
+            >
+              <Typography>User Error Excess Types for Selected Area:</Typography>
+              <Typography>
+                {/* Most common user error: {commonErrorExcessB} ({errorCountExcessB}, "x") } {" "} */}
+                User Error Excess Count: 20 x {" "}
+              </Typography>
+              <BarChart
+                xAxis={[
+                  {
+                    scaleType: "band",
+                    data: ["Distinct", "Element", "Table", "Column", ".." ],
+                    label: "Error Excess Types",
+                  },
+                ]}
+                yAxis={[
+                  {
+                    scaleType: "linear",
+                    label: "frequency",
+                  },
+                ]}
+                series={areatimedata}
+                /* colors={[colors.blueAccent[400], colors.greenAccent[400]]} */
+                padding={0.3}
+                width={500}
+                height={300}
+              />
+              <Button
+                onClick={downloadAreaData}
+              >
+                Download CSV <DownloadIcon></DownloadIcon>
+              </Button>
+            </Box>
+          </Grid>
+
+          {/* BOTTOM - Missing */}
+          <Grid item xs={12} md={6}>
+            <Box
+              height="100%"
+              /* backgroundColor={colors.primary[400]} */
+              sx={cardStyle}
+            >
+              <Typography>User Error Missing Types for Selected Area:</Typography>
+              <Typography>
+                {/* Most common user error: {commonErrorMissingB} ({errorCountMissingB}, "x") } {" "} */}
+                User Error Missing Count: 15 x {" "}
+              </Typography>
+              <BarChart
+                xAxis={[
+                  {
+                    scaleType: "band",
+                    data: ["Distinct", "Element", "Table", "Column", ".." ],
+                    label: "Error Missing Types",
+                  },
+                ]}
+                yAxis={[
+                  {
+                    scaleType: "linear",
+                    label: "frequency",
+                  },
+                ]}
+                series={areatimedata}
+                /* colors={[colors.blueAccent[400], colors.greenAccent[400]]} */
+                padding={0.3}
+                width={500}
+                height={300}
+              />
+              <Button
+                onClick={downloadAreaData}
+              >
+                Download CSV <DownloadIcon></DownloadIcon>
+              </Button>
+            </Box>
+          </Grid>
+
+        </>
+      )}
+
       {/* Message when no area is selected */}
       {/* {selectedAreaId == 0 && (
         <Grid container spacing={50} justify="flex-end">
@@ -551,6 +742,7 @@ function StatisticsC() {
           </Grid>
         </Grid>
       )}
+
       {isAdmin ? (
         <Grid item xs={12}>
           <Typography>
