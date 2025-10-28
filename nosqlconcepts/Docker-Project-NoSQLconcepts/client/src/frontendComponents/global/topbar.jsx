@@ -88,7 +88,7 @@ function TopBar() {
           color="inherit"
           startIcon={<GridViewIcon />}
         >
-          Kursauswahl
+          Course Selection
         </Button>
         <Tooltip title="open menu">
           <IconButton

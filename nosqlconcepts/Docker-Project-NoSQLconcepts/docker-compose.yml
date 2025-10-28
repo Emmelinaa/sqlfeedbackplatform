@@ -108,6 +108,11 @@ services:
       - neo4j
     env_file:
       - .env
+    volumes:
+    - ./server:/app
+    - /app/node_modules
+    working_dir: /app
+    command: ["npm", "start"]
 
   client:
     build: ./client

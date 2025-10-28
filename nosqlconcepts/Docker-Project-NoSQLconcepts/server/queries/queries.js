@@ -2,7 +2,7 @@ const queries = {
     loginQuery: `SELECT * FROM private.users WHERE user_name = $1 AND password = $2;`, 
     getUsersQuery: `SELECT DISTINCT username FROM tool.user_task_data`,
     getUserDataQuery: `SELECT * FROM tool.user_task_data WHERE username = $1 order by task_area_id, statement_id`,
-    getSolutionQuery: `SELECT solution_query FROM tool.task_statements WHERE statement_id = $1 AND area_id = $2`,
+    getSolutionQuery: `SELECT solution_query FROM tool.task_statements WHERE statement_id = $1 AND area_id = $2 AND selected_area = $3;`,
     getBackupDataQuery: `SELECT task_area_id as taskAreaId, statement_id as taskNumber,  query_text as queryText, is_executable as isExecutable, result_size as resultSize, partial_solution as partialsolution, is_correct as isCorrect, difficulty_level as difficulty, processing_time as time 
     FROM tool.user_task_data
     WHERE username = $1 order by taskAreaId, taskNumber`,
@@ -174,8 +174,7 @@ getQueryDataFromDBQuery: `SELECT query_text, result_size, is_executable FROM too
 getTimeDataFromDBQuery: `SELECT processing_time FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 AND statement_id = $3 `,
 getDownloadDataFromDBQuery: `SELECT statement_id, query_text, result_size, is_executable, partial_solution, is_correct, difficulty_level, processing_time FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 order by statement_id`,
 getExercisesCountQuery: `SELECT COUNT(*) FROM tool.task_statements WHERE statement_id = $1 AND area_id = $2`,
-// TODO: add selected_area
-addExerciseQuery: `INSERT INTO tool.task_statements (statement_id, area_id, statement_text, solution_query, topic, subtasknumber, maxtime, hint, tasknumber) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+addExerciseQuery: `INSERT INTO tool.task_statements (statement_id, area_id, statement_text, solution_query, topic, subtasknumber, maxtime, hint, tasknumber, selected_area) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
 updateExerciseQuery: `UPDATE tool.task_statements SET statement_text = $1, solution_query = $2, topic = $3, subtasknumber = $4, maxtime = $5, hint = $6, tasknumber = $7 WHERE statement_id = $8 AND area_id = $9`,
 deleteExerciseQuery: `DELETE FROM tool.task_statements WHERE statement_id = $1 AND area_id = $2`,
 getAllExercisesQuery: `SELECT * FROM tool.task_statements order by area_id, statement_id`,
