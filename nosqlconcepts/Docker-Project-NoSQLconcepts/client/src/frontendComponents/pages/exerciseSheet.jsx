@@ -251,12 +251,19 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   //############# in progress
 
   const executeQuery = async () => {
+    console.log("1");
     sendDataToHistory();
+    console.log("2");
     sendDataToDb();
+    console.log("3");
     setQueryResult("");
+    console.log("4");
     const execQuery = formData.query_text;
+    console.log("5");
     let apiRoute = "";
+    console.log("6");
     if (endpoint === "PostgreSQL") {
+      console.log("7");
       apiRoute = "/execute-sql";
     }
     if (endpoint === "Cassandra") {
@@ -270,6 +277,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     }
 
     try {
+      console.log("8");
       const response = await sendToExecute(
         apiRoute,
         execQuery,
@@ -277,6 +285,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
         area_id,
         selected_area
       );
+      console.log("9");
       console.log("SQL query of the student: " + execQuery);
       console.log("Correct SQL query:", response.data.solutionQuery);
       console.log("queryFeedback_new: ", response.data.queryFeedback_new);
@@ -451,18 +460,24 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   };
 
   function sqlDistanceHandling(queryFeedback_new) {
+    console.log("Function: Handling SQL-distance feedback");
     let totalDistance = "";
     let noCalculation = "";
     let feedbackOutput = [];
+    console.log("Query Feedback New: ", queryFeedback_new);
 
     if (/^\s*ERROR:\s*/.test(queryFeedback_new)) {
       console.log("queryFeedback_new starts with ERROR:");
       noCalculation = queryFeedback_new.replace(/^\s*ERROR:\s*/, "").trim();
+      console.log("noCalculation: ", noCalculation);
 
     } else {
+      console.log("no ERROR:");
       totalDistance = queryFeedback_new.split("\n")[0].split(":").slice(1).join(":").trim();
 
       const outputSplitter = queryFeedback_new.split(">>>").map( a => a.trim() ).filter( Boolean ).slice(1);
+      //const countSplits = queryFeedback_new.split(">>>").length - 1;
+      //console.log("There are ", countSplits, " feedback points.");
 
       feedbackOutput = outputSplitter.map( a => {
         const lines = a.split("\n");
@@ -602,16 +617,19 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                           style={{ width: "100%", height: "400px" }}
                           setOptions={{ fontSize: "16px" }}
                         />
+
                         <GradientButton onClick={executeQuery}>
                           Run query
                           <PlayCircleFilledWhiteIcon></PlayCircleFilledWhiteIcon>
                         </GradientButton>
+
                         {feedback_on && (
                           <ImportantMsg
                             message="Note that the feedback functionality is a work in progress. It is possible that a message will appear stating that your result does not match the expected result. Your solution may still be correct. We are working on improving this functionality in the future so that your individual solution is evaluated with regard to the task description."
                             type="info"
                           />
                         )}
+
                         {queryResult && (
                           <ImportantMsg
                             message={
@@ -623,12 +641,14 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                             type="success"
                           />
                         )}
+
                         {queryResult && feedback_on && (
                           <ImportantMsg
                             message={feedback}
                             type={feedbackType}
                           />
                         )}
+
                         {endpoint === "Neo4J" && queryResult && (
                           <ResultGraph
                             queryResult={queryResult}

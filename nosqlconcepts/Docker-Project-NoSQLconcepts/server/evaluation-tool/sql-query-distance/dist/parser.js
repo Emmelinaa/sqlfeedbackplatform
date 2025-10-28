@@ -555,6 +555,7 @@ function diff(a, b) {
     result += (moreQuery[i] || "") + " ";
   }
 
+  console.log("Diff Result:", result);
   return result.trim();
 }
 

@@ -136,12 +136,15 @@ const ManageExercises = () => {
 
   const handleConfirmation = async () => {
     try {
+      console.log("1");
       if (actionType === "delete") {
+        console.log("2");
         await deleteExercise(
           selectedExercise.statement_id,
           selectedExercise.area_id
         );
       } else if (actionType === "add") {
+        console.log("3");
         if (
           formValues.area_id &&
           formValues.statement_id &&
@@ -149,12 +152,15 @@ const ManageExercises = () => {
           formValues.subtasknumber &&
           formValues.selected_area
         ) {
+          console.log("3.1 " + formValues.selected_area);
           await addExercise(formValues);
         } else {
           alert("Please fill all required fields!");
         }
+        console.log("3.2");
         setSelectedArea("");
       } else if (actionType === "edit") {
+        console.log("4");
         if (
           formValues.area_id &&
           formValues.statement_id &&
@@ -162,14 +168,18 @@ const ManageExercises = () => {
           formValues.subtasknumber
           // && formValues.selected_area
         ) {
+          console.log("5");
           await updateExercise(formValues);
         } else {
           alert("Please fill all required fields!");
         }
         setSelectedArea("");
       }
+      console.log("6");
       loadExercises();
+      console.log("7");
     } catch (error) {
+      console.log("8");
       console.error("Error:", error);
       if (actionType === "add") {
         alert(

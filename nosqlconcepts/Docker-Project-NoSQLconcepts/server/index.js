@@ -174,6 +174,8 @@ app.get('/api/admin', authenticateJWT, (req, res) => {
 
 const executeQuery = async (query, params, res) => {
   try {
+    //console.log("query: ", query);
+    //console.log("params: ", params);
     const { rows } = await pool2.query(query, params);
     res.json(rows);
   } catch (error) {
