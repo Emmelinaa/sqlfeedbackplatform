@@ -17,7 +17,7 @@ const adminQueries = {
     deleteUserDataQuery: `DELETE FROM tool.user_task_data WHERE data_id = $1`,
     deleteAllUserDataQuery: `DELETE FROM tool.user_task_data WHERE username = $1`,
     deleteAllHistoryDataQuery: `DELETE FROM tool.query_history WHERE username = $1`,
-    getAllUserTaskData: `SELECT data_id,username,statement_id,task_area_id,selected_area,is_executable,result_size,is_correct,difficulty_level,processing_time,is_finished FROM tool.user_task_data`,
+    getAllUserTaskData: `SELECT data_id,username,statement_id,task_area_id,selected_area,is_executable,result_size,is_correct,difficulty_level,processing_time,is_finished, edit_steps_list FROM tool.user_task_data`,
     getAllHistoryData:`SELECT history_id,username,statement_id,task_area_id,selected_area,is_executable,result_size,is_correct,executed_at FROM tool.query_history`,
   }
   module.exports = adminQueries;

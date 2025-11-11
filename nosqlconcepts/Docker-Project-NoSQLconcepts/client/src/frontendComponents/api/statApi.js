@@ -20,9 +20,9 @@ export const fetchData = async () => {
  * Fetches task-related data from the API.
  * @returns {Promise<Array>} Array of task-related data objects.
  */
-export const fetchTaskData = async (selectedTaskAreaId) => {
+export const fetchTaskData = async (selectedTaskAreaId, selected_area) => {
   try {
-    const response = await axios.post(`${API_URL}/task_data`, {selectedTaskAreaId});
+    const response = await axios.post(`${API_URL}/task_data`, { selectedTaskAreaId, selected_area });
     return response.data;
   } catch (error) {
     console.error('Error fetching task data:', error);

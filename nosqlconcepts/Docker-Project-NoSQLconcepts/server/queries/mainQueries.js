@@ -2,10 +2,10 @@
 const mainQueries = {
   areaNamesQuery: `SELECT area_id, area_name FROM tool.task_areas order by area_id`,
   getHistoryQuery: ` SELECT query_text, executed_at FROM tool.query_history WHERE username = $1 AND task_area_id = $2`,
-  getUserDataQuery: `SELECT * FROM tool.user_task_data WHERE username = $1 AND task_area_id = $2 order by statement_id`,
-  getTasksQuery: `SELECT tasknumber, topic, subtasknumber, maxtime, statement_text as description, hint FROM tool.task_statements WHERE area_id = $1 order by statement_id;`,
+  getUserDataQuery: `SELECT * FROM tool.user_task_data WHERE username = $1 AND task_area_id = $2 AND selected_area = $3 order by statement_id`,
+  getTasksQuery: `SELECT tasknumber, topic, subtasknumber, maxtime, statement_text as description, hint FROM tool.task_statements WHERE area_id = $1 AND selected_area = $2 order by statement_id;`,
 
-  getTaskFormDataQuery: `SELECT query_text, result_size, is_executable, is_correct, partial_solution, difficulty_level, is_finished FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 AND statement_id = $3 `,
+  getTaskFormDataQuery: `SELECT query_text, result_size, is_executable, is_correct, partial_solution, difficulty_level, is_finished FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 AND statement_id = $3 AND selected_area = $4`,
   storeHistoryDataQuery: `INSERT INTO tool.query_history (
         username,
         statement_id,
@@ -13,8 +13,9 @@ const mainQueries = {
         query_text,
         is_executable,
         result_size,
-        is_correct
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7);`,
+        is_correct,
+        selected_area
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`,
   getPgStructureQuery: `SELECT 
       c.table_name, 
       c.column_name, 
@@ -43,9 +44,9 @@ const mainQueries = {
       WHERE 
       c.table_schema = 'public';`,
   getSolutionQuery: `SELECT solution_query FROM tool.task_statements WHERE statement_id = $1 AND area_id = $2 AND selected_area = $3;`,
-  getDownloadDataFromDBQuery: `SELECT statement_id, query_text, result_size, is_executable, partial_solution, is_correct, difficulty_level, processing_time, is_finished FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 order by statement_id`,
-  getTimerQuery:`Select processing_time from tool.user_task_data where username = $1 and task_area_id = $2 and statement_id = $3`,
-  postTimerQuery:`UPDATE tool.user_task_data SET processing_time = $4 where username = $1 and task_area_id = $2 and statement_id = $3`,
+  getDownloadDataFromDBQuery: `SELECT statement_id, query_text, result_size, is_executable, partial_solution, is_correct, difficulty_level, processing_time, is_finished FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 AND selected_area = $3 order by statement_id`,
+  getTimerQuery:`Select processing_time from tool.user_task_data where username = $1 and task_area_id = $2 and statement_id = $3 and selected_area = $4`,
+  postTimerQuery:`UPDATE tool.user_task_data SET processing_time = $4 where username = $1 and task_area_id = $2 and statement_id = $3 and selected_area = $4`,
 
 };
 

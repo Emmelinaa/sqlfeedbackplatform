@@ -393,7 +393,7 @@ exports.replaceFromExpression = replaceFromExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "setTableJoinType",
-    description: "Set complex join-type on a from-element (change cross join to a complex join)",
+    description: "Set (missing) complex join-type on a from-element (change cross join to a complex join)",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         if (!meta.from.join)
@@ -413,7 +413,7 @@ exports.replaceFromExpression = replaceFromExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "unsetTableJoinType",
-    description: "Unset complex join-type on a from-element (change complex join to cross join)",
+    description: "Unset (excess) complex join-type on a from-element (change complex join to cross join)",
     cost: 1,
     perform: (query, _schema, _meta, result) => {
         for (let f = 0; f < query.fromLength; ++f) {
@@ -667,7 +667,7 @@ exports.replaceGroupbyExpression = replaceGroupbyExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "addGroupbyColumnReference",
-    description: "Add (missing) column reference to a group-by expression",
+    description: "Add (missing) column-reference to a group-by expression",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceGroupbyExpression(query, result, addColumnReference(meta.groupby.columns), meta.groupby.columnReferenceHeight);
@@ -683,7 +683,7 @@ exports.replaceGroupbyExpression = replaceGroupbyExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "setGroupbyColumnReferenceTable",
-    description: "Set (missing) table name on a column reference in a group-by expression",
+    description: "Set (missing) table name on a column-reference in a group-by expression",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceGroupbyExpression(query, result, setColumnReferenceTable, meta.groupby.columnReferenceHeight);
@@ -691,7 +691,7 @@ exports.replaceGroupbyExpression = replaceGroupbyExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "unsetGroupbyColumnReferenceTable",
-    description: "Unset (excess) table name on a column reference in a group-by expression",
+    description: "Unset (excess) table name on a column-reference in a group-by expression",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceGroupbyExpression(query, result, unsetColumnReferenceTable, meta.groupby.columnReferenceHeight);
@@ -731,7 +731,7 @@ exports.replaceGroupbyExpression = replaceGroupbyExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "addGroupbyBinaryExpression",
-    description: "Add (missing) binary expression to a group-by expression",
+    description: "Add (missing) binary-expression to a group-by expression",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceGroupbyExpression(query, result, addBaseBinaryExpression, meta.groupby.columnReferenceHeight, meta.groupby);
@@ -757,7 +757,7 @@ function replaceHavingExpression(query, result, multimap, recursionDepth, maxHei
 exports.replaceHavingExpression = replaceHavingExpression;
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "addHavingColumnReference",
-    description: "Add (missing) column reference to the having-clause",
+    description: "Add (missing) column-reference to the having-clause",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceHavingExpression(query, result, addColumnReference(meta.having.columns), meta.having.columnReferenceHeight);
@@ -773,7 +773,7 @@ exports.replaceHavingExpression = replaceHavingExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "setHavingColumnReferenceTable",
-    description: "Set (missing) table name on a column reference in the having-clause",
+    description: "Set (missing) table name on a column-reference in the having-clause",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceHavingExpression(query, result, setColumnReferenceTable, meta.having.columnReferenceHeight);
@@ -781,7 +781,7 @@ exports.replaceHavingExpression = replaceHavingExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "unsetHavingColumnReferenceTable",
-    description: "Unset (excess) table name on a column reference in the having-clause",
+    description: "Unset (excess) table name on a column-reference in the having-clause",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceHavingExpression(query, result, unsetColumnReferenceTable, meta.having.columnReferenceHeight);
@@ -821,7 +821,7 @@ exports.replaceHavingExpression = replaceHavingExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "addHavingAggregationFunction",
-    description: "Add (missing) aggregation function to the having-clause",
+    description: "Add (missing) aggregation-function to the having-clause",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceHavingExpression(query, result, addAggregationFunction(meta.having.aggregations), meta.having.aggregationHeight, meta.having);
@@ -853,7 +853,7 @@ exports.replaceHavingExpression = replaceHavingExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "addHavingBinaryExpression",
-    description: "Add (missing) binary expression to the having-clause",
+    description: "Add (missing) binary-expression to the having-clause",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceHavingExpression(query, result, addBaseBinaryExpression, meta.having.binaryExpressionHeight, meta.having);
@@ -904,7 +904,7 @@ exports.replaceOrderbyExpression = replaceOrderbyExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "setOrderbyDescending",
-    description: "Set order of order-by-element from ascending to descending",
+    description: "Set (missing) order of order-by-element from ascending to descending",
     cost: 1,
     perform: (query, _schema, _meta, result) => {
         for (let o = 0; o < query.orderbyLength; ++o) {
@@ -917,7 +917,7 @@ exports.replaceOrderbyExpression = replaceOrderbyExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "unsetOrderbyDescending",
-    description: "Set order of order-by-element from descending to ascending",
+    description: "Set (missing) order of order-by-element from descending to ascending",
     cost: 1,
     perform: (query, _schema, _meta, result) => {
         for (let o = 0; o < query.orderbyLength; ++o) {
@@ -930,7 +930,7 @@ exports.replaceOrderbyExpression = replaceOrderbyExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "addOrderbyColumnReference",
-    description: "Add (missing) column reference to a order-by-element expression",
+    description: "Add (missing) column-reference to a order-by-element expression",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceOrderbyExpression(query, result, addColumnReference(meta.orderby.columns), meta.orderby.columnReferenceHeight);
@@ -946,7 +946,7 @@ exports.replaceOrderbyExpression = replaceOrderbyExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "setOrderbyColumnReferenceTable",
-    description: "Set (missing) table name on a column reference in a order-by-element expression",
+    description: "Set (missing) table name on a column-reference in a order-by-element expression",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceOrderbyExpression(query, result, setColumnReferenceTable, meta.orderby.columnReferenceHeight);
@@ -954,7 +954,7 @@ exports.replaceOrderbyExpression = replaceOrderbyExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "unsetOrderbyColumnReferenceTable",
-    description: "Unset (excess) table name on a column reference in a order-by-element expression",
+    description: "Unset (excess) table name on a column-reference in a order-by-element expression",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceOrderbyExpression(query, result, unsetColumnReferenceTable, meta.orderby.columnReferenceHeight);
@@ -994,7 +994,7 @@ exports.replaceOrderbyExpression = replaceOrderbyExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "addOrderbyAggregationFunction",
-    description: "Add (missing) aggregation function to a order-by-element expression",
+    description: "Add (missing) aggregation-function to a order-by-element expression",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceOrderbyExpression(query, result, addAggregationFunction(meta.orderby.aggregations), meta.orderby.aggregationHeight, meta.orderby);
@@ -1028,7 +1028,7 @@ exports.replaceOrderbyExpression = replaceOrderbyExpression;
 });
 (0, edit_1.addEdit)(exports.atomicEdits, {
     name: "addOrderbyBinaryExpression",
-    description: "Add (missing) binary expression to a order-by-element expression",
+    description: "Add (missing) binary-expression to a order-by-element expression",
     cost: 1,
     perform: (query, _schema, meta, result) => {
         replaceOrderbyExpression(query, result, addBaseBinaryExpression, meta.orderby.binaryExpressionHeight, meta.orderby);

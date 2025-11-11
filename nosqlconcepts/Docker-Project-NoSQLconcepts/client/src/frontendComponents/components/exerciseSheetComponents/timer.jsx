@@ -6,7 +6,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { IconButton } from "@mui/material";
 
 
-const OptTimer = ({ taskNumber, area_id, username, onTimeUpdate, run }) => {
+const OptTimer = ({ taskNumber, area_id, username, onTimeUpdate, run, selected_area }) => {
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(run);
   const intervalRef = useRef(null);
@@ -14,7 +14,7 @@ const OptTimer = ({ taskNumber, area_id, username, onTimeUpdate, run }) => {
   useEffect(() => {
     const fetchTime = async () => {
       try {
-        const savedTime = await getTimerData(username, area_id, taskNumber);
+        const savedTime = await getTimerData(username, area_id, taskNumber, selected_area);
         if (savedTime) {
           setTime(savedTime[0].processing_time);
           

@@ -43,10 +43,11 @@ export const fetchUserData = async (username, databasetype) => {
   }
 };
 
-export const fetchTasksData = async (areaId) => {
+export const fetchTasksData = async (areaId, selected_area) => {
   try {
     const response = await axios.post(`${API_URL}/getTasks`, {
       areaId,
+      selected_area,
     });
 
     return response.data;
@@ -55,12 +56,13 @@ export const fetchTasksData = async (areaId) => {
     throw error;
   }
 };
-export const fetchTaskFormData = async (areaId, username, tasknumber) => {
+export const fetchTaskFormData = async (areaId, username, tasknumber, selected_area) => {
   try {
     const response = await axios.post(`${API_URL}/getDataFromDB`, {
       areaId,
       username,
       tasknumber,
+      selected_area,
     });
 
     return response.data;
@@ -104,11 +106,12 @@ export const fetchDbStructure = async (dbendpoint) => {
   }
 };
 
-export const fetchDownloadData = async (areaId, username) => {
+export const fetchDownloadData = async (areaId, username, selected_area) => {
   try {
     const response = await axios.post(`${API_URL}/getDownloadDataFromDB`, {
       areaId,
       username,
+      selected_area,
     });
 
     return response.data;
@@ -118,12 +121,13 @@ export const fetchDownloadData = async (areaId, username) => {
   }
 };
 
-export const getTimerData = async (username, areaId, taskNumber) => {
+export const getTimerData = async (username, areaId, taskNumber, selected_area) => {
   try {
     const response = await axios.post(`${API_URL}/gettimer`, {
       username,
       areaId,
       taskNumber,
+      selected_area,
     });
     return response.data;
   } catch (error) {

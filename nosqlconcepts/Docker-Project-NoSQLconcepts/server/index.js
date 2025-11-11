@@ -174,8 +174,6 @@ app.get('/api/admin', authenticateJWT, (req, res) => {
 
 const executeQuery = async (query, params, res) => {
   try {
-    //console.log("query: ", query);
-    //console.log("params: ", params);
     const { rows } = await pool2.query(query, params);
     res.json(rows);
   } catch (error) {
@@ -228,16 +226,16 @@ app.get("/api/total-users", async (req, res) => {
 
 // GET /difficulty-rating-easy
 app.get("/api/difficulty-rating-easy", async (req, res) => {
-  await getDifficultyRating(["Very easy", "Easy"], res);
+  await getDifficultyRating(["Very easy", "Easy"], req.body.selected_area, res);
 });
 
 // GET /difficulty-rating-difficult
 app.get("/api/difficulty-rating-difficult", async (req, res) => {
-  await getDifficultyRating(["Very difficult", "Difficult"], res);
+  await getDifficultyRating(["Very difficult", "Difficult"], req.body.selected_area, res);
 });
 
 // Funktion zur Abfrage der Schwierigkeitsbewertung
-const getDifficultyRating = async (difficultyLevels, res) => {
+const getDifficultyRating = async (difficultyLevels, selected_area, res) => {
   try {
     const { rows } = await pool2.query(`
       SELECT 
@@ -253,13 +251,13 @@ const getDifficultyRating = async (difficultyLevels, res) => {
       WHERE 
           utd.difficulty_level IN (${difficultyLevels
             .map((level) => `'${level}'`)
-            .join(",")})
+            .join(",")}) AND utd.selected_area = $1
       GROUP BY 
           ts.statement_id, ta.area_name
       ORDER BY 
           users_count DESC
       LIMIT 1;
-    `);
+    `, [selected_area]);
     if (rows.length === 0) {
       res.json("No user data available");
     } else {
@@ -273,17 +271,17 @@ const getDifficultyRating = async (difficultyLevels, res) => {
 //################# Main Data ######################################################
 // GET /gettimer
 app.post("/api/gettimer", async (req, res) => {
-  const {username, areaId, taskNumber} = req.body;
-  await executeQuery(mainQueries.getTimerQuery, [username, areaId, taskNumber], res);
+  const {username, areaId, taskNumber, selected_area} = req.body;
+  await executeQuery(mainQueries.getTimerQuery, [username, areaId, taskNumber, selected_area], res);
 });
 
 // POST /posttimer
 app.post("/api/posttimer", async (req, res) => {
-  const { username, areaId, taskNumber, time } = req.body;
+  const { username, areaId, taskNumber, time, selected_area } = req.body;
 
   await executeQuery(
     mainQueries.postTimerQuery,
-    [username, areaId, taskNumber, time],
+    [username, areaId, taskNumber, time, selected_area],
     res
   );
 });
@@ -310,16 +308,16 @@ app.post("/api/gethistory", async (req, res) => {
 });
 //POST /getDownloadDataFromDB
 app.post("/api/getDownloadDataFromDB", async (req, res) => {
-  const { areaId, username } = req.body;
+  const { areaId, username, selected_area } = req.body;
 
   // Ensure the username and databasetype parameters are provided
-  if (!username || !areaId) {
-    return res.status(400).send("Missing username or areaId");
+  if (!username || !areaId || !selected_area) {
+    return res.status(400).send("Missing username, areaId or selected_area");
   }
 
   await executeQuery(
     mainQueries.getDownloadDataFromDBQuery,
-    [areaId, username],
+    [areaId, username, selected_area],
     res
   );
 });
@@ -357,32 +355,32 @@ app.post("/api/get-user-data", async (req, res) => {
 
 //POST getTasks
 app.post("/api/getTasks", async (req, res) => {
-  const { areaId } = req.body;
+  const { areaId, selected_area } = req.body;
 
   // Ensure the username and databasetype parameters are provided
-  if (!areaId) {
-    return res.status(400).send("Missing areaId");
+  if (!areaId || !selected_area) {
+    return res.status(400).send("Missing areaId or selected_area");
   }
 
   await executeQuery(
     mainQueries.getTasksQuery,
-    [areaId],
+    [areaId, selected_area],
     res
   );
 });
 
 //POST getDataFromDB
 app.post("/api/getDataFromDB", async (req, res) => {
-  const { areaId, username, tasknumber } = req.body;
+  const { areaId, username, tasknumber, selected_area } = req.body;
 
   // Ensure the username and databasetype parameters are provided
-  if (!areaId || !username || !tasknumber) {
-    return res.status(400).send("Missing areaId, username or tasknumber");
+  if (!areaId || !username || !tasknumber || !selected_area) {
+    return res.status(400).send("Missing areaId, username, tasknumber or selected_area");
   }
 
   await executeQuery(
     mainQueries.getTaskFormDataQuery,
-    [areaId, username, tasknumber],
+    [areaId, username, tasknumber, selected_area],
     res
   );
 });
@@ -394,13 +392,18 @@ const handleDataStorage = async (req, res, table) => {
   } = req.body;
 
   //const { handleDataStorageReadQuery } = queries;
-  const handleDataStorageReadQuery = `SELECT * FROM ${table} WHERE username = $1 AND statement_id = $2 AND task_area_id = $3;`;
+  const handleDataStorageReadQuery = `SELECT * FROM ${table} WHERE username = $1 AND statement_id = $2 AND task_area_id = $3 AND selected_area = $4;`;
   try {
+    let editStepsList = dataToSend.editStepsList;
+    if (editStepsList && !Array.isArray(editStepsList)) {
+      editStepsList = [editStepsList];
+    }
     const { rows } = await pool2.query(handleDataStorageReadQuery, [
       /* table, */
       dataToSend.username,
       dataToSend.statementId,
       dataToSend.taskAreaId,
+      dataToSend.selected_area,
     ]);
 
     if (rows.length !== 0) {
@@ -413,11 +416,13 @@ query_text = $7,
 is_executable = $8,
 result_size = $9,
 processing_time = $10,
-is_finished = $11
+is_finished = $11,
+edit_steps_list = $12
 WHERE 
 username = $1 
 AND statement_id = $2 
-AND task_area_id = $3;`;
+AND task_area_id = $3
+AND selected_area = $13;`;
       await pool2.query(handleDataStorageUpdateQuery, [
         dataToSend.username,
         dataToSend.statementId,
@@ -429,17 +434,19 @@ AND task_area_id = $3;`;
         dataToSend.isExecutable,
         dataToSend.resultSize,
         dataToSend.processingTime,
-        dataToSend.isFinished
+        dataToSend.isFinished,
+        editStepsList,
+        dataToSend.selected_area
         /* table, */
       ]);
     } else {
       //const { handleDataStorageInsertQuery } = queries;
 
-      // TODO: Add selected_area
       const handleDataStorageInsertQuery = `INSERT INTO ${table} (
   username,
   statement_id,
   task_area_id,
+  selected_area,
   query_text,
   is_executable,
   result_size,
@@ -447,12 +454,14 @@ AND task_area_id = $3;`;
   partial_solution,
   difficulty_level,
   processing_time,
-  is_finished
-) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);`;
+  is_finished,
+  edit_steps_list
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);`;
       await pool2.query(handleDataStorageInsertQuery, [
         dataToSend.username,
         dataToSend.statementId,
         dataToSend.taskAreaId,
+        dataToSend.selected_area,
         dataToSend.queryText,
         dataToSend.isExecutable,
         dataToSend.resultSize,
@@ -460,7 +469,8 @@ AND task_area_id = $3;`;
         dataToSend.partialSolution,
         dataToSend.difficultyLevel,
         dataToSend.processingTime,
-        dataToSend.isFinished
+        dataToSend.isFinished,
+        editStepsList
         /* table, */
       ]);
     }
@@ -495,7 +505,8 @@ app.post("/api/store-history-data", async (req, res) => {
       dataToSend.queryText,
       dataToSend.isExecutable,
       dataToSend.resultSize,
-      dataToSend.isCorrect,],
+      dataToSend.isCorrect,
+      dataToSend.selected_area],
     res
   );
 });
@@ -1522,9 +1533,9 @@ app.get('/api/data', async (req, res) => {
 
 // Route to get task-related data
 app.post('/api/task_data', async (req, res) => {
-  const {selectedTaskAreaId} = req.body;
+  const {selectedTaskAreaId, selected_area} = req.body;
   try {
-    const result_task_data = await pool2.query('SELECT * FROM tool.task_statements where area_id = $1 order by statement_id', [selectedTaskAreaId]);
+    const result_task_data = await pool2.query('SELECT * FROM tool.task_statements where area_id = $1  AND selected_area = $2 order by statement_id', [selectedTaskAreaId, selected_area]);
     res.json(result_task_data.rows); // Send fetched task data as JSON response
     
   } catch (err) {

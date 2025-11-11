@@ -30,14 +30,15 @@ export default function DownloadButton() {
     difficulty: "No answer",
     time: 0,
   });
+  const selected_area = queryParams.get("courseArea");
 
   //################# Functions  ######################################################
   const getDataFromDB = async (username) => {
     
     try {
-      const data = await fetchDownloadData(areaId, username);
+      const data = await fetchDownloadData(areaId, username, selected_area);
       setData(data);
-      const data2 = await fetchTasksData(areaId);
+      const data2 = await fetchTasksData(areaId, selected_area);
       setTasksArray(data2);
     } catch (error) {
       console.error("Error fetching data:", error);

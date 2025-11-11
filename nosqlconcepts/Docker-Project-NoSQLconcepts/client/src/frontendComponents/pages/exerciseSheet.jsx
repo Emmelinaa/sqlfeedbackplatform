@@ -105,14 +105,21 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   const [totalDistance, setTotalDistance] = useState("");
   const [noCalculation, setNoCalculation] = useState("");
   const [feedbackOutput, setFeedbackOutput] = useState([]);
+  const [collectedEditSteps, setCollectedEditSteps] = useState([]);
 
   useEffect(() => {
     const { totalDistance, noCalculation, feedbackOutput } = sqlDistanceHandling(queryFeedback_new || "");
     setTotalDistance(totalDistance);
     setNoCalculation(noCalculation);
     setFeedbackOutput(feedbackOutput);
+    setCollectedEditSteps((prev) => [...prev, ...(feedbackOutput ?? []).map(f => f.editStep).filter(Boolean)]);
   }, [queryFeedback_new]);
 
+  useEffect(() => {
+  if (hasStarted && collectedEditSteps.length > 0) {
+    sendDataToDb();
+  }
+}, [collectedEditSteps]);
 
   const handleF5 = (event) => {
     if (event.key === "F5") {
@@ -122,9 +129,9 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     }
   };
 
-  const getTasks = async (areaId) => {
+  const getTasks = async (areaId, selected_area) => {;
     try {
-      const data = await fetchTasksData(areaId);
+      const data = await fetchTasksData(areaId, selected_area);
       setTasksArray(data);
 
       setTask(data[taskNumber - 1]);
@@ -134,7 +141,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     }
   };
 
-  const getDataFromDB = async (tasknumber, username) => {
+  const getDataFromDB = async (tasknumber, username, selected_area) => {
     setFetchError("");
     try {
       if (typeof tasknumber === "undefined" || tasknumber === null) {
@@ -155,6 +162,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
           difficulty: response[0].difficulty_level || "0",
           isFinished: response[0].is_finished || false,
         };
+        setCollectedEditSteps(response[0].edit_steps_list || []);
       } else {
         formDataObj = {
           query_text: "",
@@ -197,6 +205,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
         username: username,
         statementId: taskNumber,
         taskAreaId: area_id,
+        selected_area: selected_area,
         queryText: formData.query_text.replace(/'/g, "''") || "",
         isExecutable: formData.isExecutable || "No",
         resultSize: formData.resultSize || 0,
@@ -205,6 +214,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
         difficultyLevel: formData.difficulty || "0",
         processingTime: receivedTime,
         isFinished: formData.isFinished || false,
+        editStepsList: collectedEditSteps,
       };
       setButtonState("loading");
       try {
@@ -223,11 +233,13 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
       }
     }
   };
+
   const sendDataToHistory = async () => {
     const dataToSend = {
       username: username,
       statementId: taskNumber,
       taskAreaId: area_id,
+      selected_area: selected_area,
       queryText: formData.query_text.replace(/'/g, "''") || "",
       isExecutable: formData.isExecutable || "No",
       resultSize: formData.resultSize || 0,
@@ -363,8 +375,8 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
 
     const fetchUser = async () => {
       if (username) {
-        getTasks(area_id);
-        getDataFromDB(taskNumber, username);
+        getTasks(area_id, selected_area);
+        getDataFromDB(taskNumber, username, selected_area);
       }
     };
 
@@ -400,7 +412,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     setTaskNumber(newTaskNumber);
     setQueryResult("");
     setError("");
-    getDataFromDB(newTaskNumber);
+    getDataFromDB(newTaskNumber, username, selected_area);
     setIsRunning(false);
     setHasStarted(false);
     sendDataToDb();
@@ -438,10 +450,10 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   const handleDownload = () => {
     openConfirmationDialog(() => {
       sendDataToDb();
-      const dataToSend = { title: area_name, areaId: area_id };
+      const dataToSend = { title: area_name, areaId: area_id, selected_area: selected_area };
       setIsSaved(false);
       navigate(
-        `/download?title=${dataToSend.title}&areaId=${dataToSend.areaId}&courseArea=${selected_area}`
+        `/download?title=${dataToSend.title}&areaId=${dataToSend.areaId}&courseArea=${dataToSend.selected_area}`
       );
     });
   };
@@ -460,24 +472,18 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   };
 
   function sqlDistanceHandling(queryFeedback_new) {
-    console.log("Function: Handling SQL-distance feedback");
     let totalDistance = "";
     let noCalculation = "";
     let feedbackOutput = [];
     console.log("Query Feedback New: ", queryFeedback_new);
 
     if (/^\s*ERROR:\s*/.test(queryFeedback_new)) {
-      console.log("queryFeedback_new starts with ERROR:");
       noCalculation = queryFeedback_new.replace(/^\s*ERROR:\s*/, "").trim();
-      console.log("noCalculation: ", noCalculation);
 
     } else {
-      console.log("no ERROR:");
       totalDistance = queryFeedback_new.split("\n")[0].split(":").slice(1).join(":").trim();
 
       const outputSplitter = queryFeedback_new.split(">>>").map( a => a.trim() ).filter( Boolean ).slice(1);
-      //const countSplits = queryFeedback_new.split(">>>").length - 1;
-      //console.log("There are ", countSplits, " feedback points.");
 
       feedbackOutput = outputSplitter.map( a => {
         const lines = a.split("\n");
@@ -691,9 +697,10 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                           <ImportantMsg
                                 message={
                                   <>
-                                    Your output does not match the expected output (if there is an expected output).<br />
+                                    Your output does not match the expected output (if there is an expected output).
                                     You can see an overview of the errors below and click any item to view more details.
                                     <br />
+                                    If an error has 'Cost: 0' then it's a mathematical or logical transformation that does not change the meaning of the SQL query.
                                     There are some operator types (like <code>LIKE</code>) that cannot be parsed yet,
                                     so no detailed feedback is available for them at the moment.
                                     </>
@@ -916,6 +923,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                             area_id={area_id}
                             username={username}
                             onTimeUpdate={handleTimerUpdate}
+                            selected_area={selected_area}
                           />
                           <hr></hr>
                           {taskNumber !== 1 && (
@@ -944,6 +952,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                             area_id={area_id}
                             username={username}
                             onTimeUpdate={handleTimerUpdate}
+                            selected_area={selected_area}
                           />
 
                           <hr></hr>

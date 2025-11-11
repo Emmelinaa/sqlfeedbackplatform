@@ -13,8 +13,9 @@ const queries = {
         query_text,
         is_executable,
         result_size,
-        is_correct
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7);`,
+        is_correct,
+        selected_area
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`,
       getHistoryQuery: ` SELECT query_text, executed_at FROM tool.query_history WHERE username = $1 AND task_area_id = $2`,
 solvedTaskCountQuery: `SELECT 
 task_area_id,
@@ -160,6 +161,7 @@ handleDataStorageInsertQuery: `INSERT INTO $11 (
     username,
     statement_id,
     task_area_id,
+    selected_area,
     query_text,
     is_executable,
     result_size,
@@ -167,16 +169,16 @@ handleDataStorageInsertQuery: `INSERT INTO $11 (
     partial_solution,
     difficulty_level,
     processing_time
-  ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);`,
+  ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);`,
 getTasksQuery: `SELECT tasknumber, topic, subtasknumber, maxtime, statement_text as description, hint FROM tool.task_statements WHERE area_id = $1 order by statement_id;`,
 getDataFromDBQuery: `SELECT is_correct as isCorrect, partial_solution as partialSolution, difficulty_level as difficulty FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 AND statement_id = $3 `,
-getQueryDataFromDBQuery: `SELECT query_text, result_size, is_executable FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 AND statement_id = $3 `,
+getQueryDataFromDBQuery: `SELECT query_text, result_size, is_executable FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 AND statement_id = $3 AND selected_area = $4`,
 getTimeDataFromDBQuery: `SELECT processing_time FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 AND statement_id = $3 `,
 getDownloadDataFromDBQuery: `SELECT statement_id, query_text, result_size, is_executable, partial_solution, is_correct, difficulty_level, processing_time FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 order by statement_id`,
-getExercisesCountQuery: `SELECT COUNT(*) FROM tool.task_statements WHERE statement_id = $1 AND area_id = $2`,
+getExercisesCountQuery: `SELECT COUNT(*) FROM tool.task_statements WHERE statement_id = $1 AND area_id = $2 AND selected_area = $3;`,
 addExerciseQuery: `INSERT INTO tool.task_statements (statement_id, area_id, statement_text, solution_query, topic, subtasknumber, maxtime, hint, tasknumber, selected_area) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-updateExerciseQuery: `UPDATE tool.task_statements SET statement_text = $1, solution_query = $2, topic = $3, subtasknumber = $4, maxtime = $5, hint = $6, tasknumber = $7 WHERE statement_id = $8 AND area_id = $9`,
-deleteExerciseQuery: `DELETE FROM tool.task_statements WHERE statement_id = $1 AND area_id = $2`,
+updateExerciseQuery: `UPDATE tool.task_statements SET statement_text = $1, solution_query = $2, topic = $3, subtasknumber = $4, maxtime = $5, hint = $6, tasknumber = $7 WHERE statement_id = $8 AND area_id = $9 AND selected_area = $10`,
+deleteExerciseQuery: `DELETE FROM tool.task_statements WHERE statement_id = $1 AND area_id = $2 AND selected_area = $3`,
 getAllExercisesQuery: `SELECT * FROM tool.task_statements order by area_id, statement_id`,
 getStatementsQuery: `Select statement_id from tool.task_statements where area_id = $1 order by statement_id`, 
 }   

@@ -85,6 +85,7 @@ CREATE TABLE IF NOT EXISTS tool.user_task_data
     difficulty_level character varying(255) COLLATE pg_catalog."default",
     processing_time integer,
     is_finished boolean,
+    edit_steps_list text[],
     CONSTRAINT user_task_data_pkey PRIMARY KEY (data_id),
     CONSTRAINT user_task_data_task_area_id_fkey FOREIGN KEY (task_area_id, selected_area)
         REFERENCES tool.task_areas (area_id, selected_area) MATCH SIMPLE
