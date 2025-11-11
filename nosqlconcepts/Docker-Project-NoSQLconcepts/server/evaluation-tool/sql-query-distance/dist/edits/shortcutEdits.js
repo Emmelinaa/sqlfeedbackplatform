@@ -173,7 +173,7 @@ function unsetColumnReferenceUnnecessaryTable(x, context) {
 });
 (0, edit_1.addEdit)(exports.shortcutEdits, {
     name: "applySelectDistributiveLaw",
-    description: "Apply distibutive law in a select-element expression",
+    description: "Apply distributive law in a select-element expression",
     cost: 0,
     perform: (query, _schema, meta, result) => {
         (0, atomicEdits_1.replaceSelectExpression)(query, result, applyDistributiveLaw, meta.select.length, meta.select.binaryExpressionHeight, meta.select);
@@ -225,7 +225,7 @@ function unsetColumnReferenceUnnecessaryTable(x, context) {
 });
 (0, edit_1.addEdit)(exports.shortcutEdits, {
     name: "applyFromDistributiveLaw",
-    description: "Apply distibutive law in a from-element join-condition",
+    description: "Apply distributive law in a from-element join-condition",
     cost: 0,
     perform: (query, _schema, meta, result) => {
         (0, atomicEdits_1.replaceFromExpression)(query, result, applyDistributiveLaw, meta.from.binaryExpressionHeight, false, false, meta.from);
@@ -266,7 +266,7 @@ function unsetColumnReferenceUnnecessaryTable(x, context) {
 });
 (0, edit_1.addEdit)(exports.shortcutEdits, {
     name: "applyWhereDistributiveLaw",
-    description: "Apply distibutive law in the where-clause",
+    description: "Apply distributive law in the where-clause",
     cost: 0,
     perform: (query, _schema, meta, result) => {
         (0, atomicEdits_1.replaceWhereExpression)(query, result, applyDistributiveLaw, meta.where.binaryExpressionHeight, meta.where);
@@ -307,7 +307,7 @@ function unsetColumnReferenceUnnecessaryTable(x, context) {
 });
 (0, edit_1.addEdit)(exports.shortcutEdits, {
     name: "applyGroupbyDistributiveLaw",
-    description: "Apply distibutive law in a group-by expression",
+    description: "Apply distributive law in a group-by expression",
     cost: 0,
     perform: (query, _schema, meta, result) => {
         (0, atomicEdits_1.replaceGroupbyExpression)(query, result, applyDistributiveLaw, meta.groupby.binaryExpressionHeight, meta.groupby);
@@ -348,7 +348,7 @@ function unsetColumnReferenceUnnecessaryTable(x, context) {
 });
 (0, edit_1.addEdit)(exports.shortcutEdits, {
     name: "applyHavingDistributiveLaw",
-    description: "Apply distibutive law in the having-clause",
+    description: "Apply distributive law in the having-clause",
     cost: 0,
     perform: (query, _schema, meta, result) => {
         (0, atomicEdits_1.replaceHavingExpression)(query, result, applyDistributiveLaw, meta.having.binaryExpressionHeight, meta.having);
@@ -389,7 +389,7 @@ function unsetColumnReferenceUnnecessaryTable(x, context) {
 });
 (0, edit_1.addEdit)(exports.shortcutEdits, {
     name: "applyOrderbyDistributiveLaw",
-    description: "Apply distibutive law in a order-by expression",
+    description: "Apply distributive law in a order-by expression",
     cost: 0,
     perform: (query, _schema, meta, result) => {
         (0, atomicEdits_1.replaceOrderbyExpression)(query, result, applyDistributiveLaw, meta.orderby.binaryExpressionHeight, meta.orderby);

@@ -5,9 +5,14 @@ import Typography from "@mui/material/Typography";
 import { fetchDownloadData, fetchTasksData } from "../../api/mainApi";
 //import { checkAuth } from "../api/loginApi";
 import { useAuth } from "../../App";
+import { useLocation } from "react-router-dom";
 
 export default function CircularProgressC({ areaId }) {
   const { username } = useAuth();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const selected_area = queryParams.get("area");
+
   //const [username, setUsername] = useState("");
   const [tasksArray, setTasksArray] = useState([]);
   const [data, setData] = useState({
@@ -45,9 +50,9 @@ export default function CircularProgressC({ areaId }) {
   //################# Functions  ######################################################
   const getDataFromDB = async (username) => {
     try {
-      const data = await fetchDownloadData(areaId, username);
+      const data = await fetchDownloadData(areaId, username, selected_area);
       setData(data);
-      const data2 = await fetchTasksData(areaId);
+      const data2 = await fetchTasksData(areaId, selected_area);
       setTasksArray(data2);
     } catch (error) {
       console.error("Error fetching data:", error);

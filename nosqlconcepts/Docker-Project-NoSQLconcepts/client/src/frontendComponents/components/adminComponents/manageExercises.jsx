@@ -40,6 +40,7 @@ const ManageExercises = () => {
   const [exercises, setExercises] = useState([]);
   const [areamames, setAreaNames] = useState([]);
   const [selectedArea, setSelectedArea] = useState("");
+  const [selected_area_selection, setSelected_area_selection] = useState("");
   const [maxId, setMaxId] = useState(0);
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
@@ -104,6 +105,7 @@ const ManageExercises = () => {
     setActionType("edit");
     setSelectedExercise(exercise);
     setSelectedArea(exercise.area_id);
+    setSelected_area_selection(exercise.selected_area);
     setFormValues({ ...exercise });
     setOpenFormDialog(true);
   };
@@ -153,6 +155,7 @@ const ManageExercises = () => {
           formValues.selected_area
         ) {
           console.log("3.1 " + formValues.selected_area);
+          console.log("handleConfirmation: " + formValues.area_id + " " + formValues.statement_id + " " + formValues.selected_area + " " + formValues.statement_text + " " + formValues.subtasknumber);
           await addExercise(formValues);
         } else {
           alert("Please fill all required fields!");
@@ -210,7 +213,8 @@ const ManageExercises = () => {
     const area_id = selectedValue.substring(0, firstHyphenIndex);
     const selected_area = selectedValue.substring(firstHyphenIndex + 1);
 
-    setSelectedArea(selectedValue);
+    setSelectedArea(area_id);
+    setSelected_area_selection(selected_area);
     
     const filteredStatementIds = exercises.filter(
       (exercise) => exercise.area_id === parseInt(area_id)
@@ -237,7 +241,10 @@ const ManageExercises = () => {
   };
 
   const filteredExercises = exercises.filter((exercise) => {
-    return areaIdFilter === "" || exercise.area_name === areaIdFilter;
+    return (
+    (areaIdFilter === "" || exercise.area_name === areaIdFilter) &&
+    (selected_area_selection === "" || exercise.selected_area === selected_area_selection)
+  );
   });
 
   const uniqueAreaIds = [
@@ -355,7 +362,7 @@ const ManageExercises = () => {
             <InputLabel id="area-dialog">Area</InputLabel>
             <Select
               labelId="area-dialog"
-              value={selectedArea}
+              value={selectedArea && selected_area_selection ? `${selectedArea}-${selected_area_selection}` : ""}
               onChange={handleSelectedArea}
               label="Select Area"
             >
