@@ -41,6 +41,10 @@ CREATE TABLE IF NOT EXISTS tool.task_areas
     CONSTRAINT task_areas_pkey PRIMARY KEY (area_id, selected_area)
 );
 
+INSERT INTO tool.task_areas (area_id, area_name, selected_area)
+VALUES (1, 'testing_paper', 'testing_area')
+ON CONFLICT DO NOTHING;
+
 -- Table: tool.task_statements
 
 DROP TABLE IF EXISTS tool.task_statements;

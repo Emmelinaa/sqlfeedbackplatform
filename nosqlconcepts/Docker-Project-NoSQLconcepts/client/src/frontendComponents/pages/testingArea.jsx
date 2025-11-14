@@ -68,19 +68,21 @@ const Item = styled(Paper)(({ theme }) => ({
   overflow: "auto",
 }));
 // area_id, area_name, endpoint, feedback_on, selected_area
-function ExerciseSheetC({ endpoint }) {
+function TestingAreaC() {
     const area_id = 1;
     const statement_id = 1;
+    const taskNumber = 1;
     const selected_area = "testing_area";
+    const [endPointChoosen, setEndPointChosen] = useState("PostgreSQL");
+    const [pendingEndpoint, setPendingEndpoint] = useState(endPointChoosen);
+
 
     const { username } = useAuth();
     const navigate = useNavigate();
 
     const [task, setTask] = useState("");
     const [isRunning, setIsRunning] = useState(false);
-    const [hasStarted, setHasStarted] = useState(false);
 
-    const [taskNumber, setTaskNumber] = useState(1);
     const [tasksArray, setTasksArray] = useState([]);
     const [buttonState, setButtonState] = useState("idle");
 
@@ -113,20 +115,6 @@ function ExerciseSheetC({ endpoint }) {
     const [noCalculation, setNoCalculation] = useState("");
     const [feedbackOutput, setFeedbackOutput] = useState([]);
     const [collectedEditSteps, setCollectedEditSteps] = useState([]);
-
-    useEffect(() => {
-        const { totalDistance, noCalculation, feedbackOutput } = sqlDistanceHandling(queryFeedback_new || "");
-        setTotalDistance(totalDistance);
-        setNoCalculation(noCalculation);
-        setFeedbackOutput(feedbackOutput);
-        setCollectedEditSteps((prev) => [...prev, ...(feedbackOutput ?? []).map(f => f.editStep).filter(Boolean)]);
-    }, [queryFeedback_new]);
-
-    useEffect(() => {
-    if (hasStarted && collectedEditSteps.length > 0) {
-        sendDataToDb();
-    }
-    }, [collectedEditSteps]);
 
     const handleF5 = (event) => {
         if (event.key === "F5") {
@@ -207,7 +195,7 @@ function ExerciseSheetC({ endpoint }) {
     };
 
     const sendDataToDb = async () => {
-        if (hasStarted) {
+        if (true) {
         const dataToSend = {
             username: username,
             statementId: taskNumber,
@@ -219,7 +207,6 @@ function ExerciseSheetC({ endpoint }) {
             isCorrect: formData.isCorrect || "0",
             partialSolution: formData.partialSolution || "",
             difficultyLevel: formData.difficulty || "0",
-            processingTime: receivedTime,
             isFinished: formData.isFinished || false,
             editStepsList: collectedEditSteps,
         };
@@ -281,66 +268,61 @@ function ExerciseSheetC({ endpoint }) {
         console.log("5");
         let apiRoute = "";
         console.log("6");
-        if (endpoint === "PostgreSQL") {
+        if (endPointChoosen === "PostgreSQL") {
         console.log("7");
         apiRoute = "/execute-sql";
         }
-        if (endpoint === "Cassandra") {
+        if (endPointChoosen === "Cassandra") {
         apiRoute = "/execute-cql";
         }
-        if (endpoint === "Neo4J") {
+        if (endPointChoosen === "Neo4J") {
         apiRoute = "/execute-cypher";
         }
-        if (endpoint === "MongoDB") {
+        if (endPointChoosen === "MongoDB") {
         apiRoute = "/execute-mql";
         }
 
         try {
-        console.log("8");
-        const response = await sendToExecute(
-            apiRoute,
-            execQuery,
-            taskNumber,
-            area_id,
-            selected_area
-        );
-        console.log("9");
-        console.log("SQL query of the student: " + execQuery);
-        console.log("Correct SQL query:", response.data.solutionQuery);
-        console.log("queryFeedback_new: ", response.data.queryFeedback_new);
-
-        setQueryFeedback_new(response.data.queryFeedback_new || "");
-
-        if (typeof response.data.userQueryResult === "string") {
-            setQueryResult([{ output: response.data.userQueryResult }]);
-        } else {
-            setQueryResult(response.data.userQueryResult);
-        }
-        setSolutionResult(response.data.expectedResult);
-
-        if (typeof response.data.userQueryResult === "string") {
-            setFormData((prev) => ({
-            ...prev,
-            query: execQuery,
-            resultSize: 1,
-            isExecutable: "Yes",
-            }));
-        } else {
-            setFormData((prev) => ({
-            ...prev,
-            query: execQuery,
-            resultSize: response.data.userQueryResult.length,
-            isExecutable: "Yes",
-            }));
-        }
-
-        if (
-            JSON.stringify(response.data.userQueryResult) ===
-            JSON.stringify(response.data.expectedResult)
-        ) {
-            setFeedback(
-            "Correct! Your query output is equal to the expected output."
+            const response = await sendToExecute(
+                apiRoute,
+                execQuery,
+                taskNumber,
+                area_id,
+                selected_area
             );
+            console.log("SQL query of the student: " + execQuery);
+
+
+            if (typeof response.data.userQueryResult === "string") {
+                setQueryResult([{ output: response.data.userQueryResult }]);
+            } else {
+                setQueryResult(response.data.userQueryResult);
+            }
+            setSolutionResult(response.data.expectedResult);
+
+            if (typeof response.data.userQueryResult === "string") {
+                setFormData((prev) => ({
+                ...prev,
+                query: execQuery,
+                resultSize: 1,
+                isExecutable: "Yes",
+                }));
+            } else {
+                setFormData((prev) => ({
+                ...prev,
+                query: execQuery,
+                resultSize: response.data.userQueryResult.length,
+                isExecutable: "Yes",
+                }));
+            }
+
+            if (
+                JSON.stringify(response.data.userQueryResult) ===
+                JSON.stringify(response.data.expectedResult)
+            ) {
+                setFeedback(
+                "Correct! Your query output is equal to the expected output."
+                );
 
             setFeedbackType("success");
         } else {
@@ -348,9 +330,9 @@ function ExerciseSheetC({ endpoint }) {
             "Your output does not match the expected output (if there is an expected output). Please try again, if you think that this task is solvable with a query. You can also write a comment in the partial solution textfield, explaining why your solution is correct. In some cases this message occurs because there is no expected output."
             );
 
-            setFeedbackType("error");
-        }
-        setError("");
+                setFeedbackType("error");
+            }
+            setError("");
         } catch (error) {
         setQueryFeedback_new("");
         setError(
@@ -367,16 +349,17 @@ function ExerciseSheetC({ endpoint }) {
     };
     //###########
     useEffect(() => {
-        if (endpoint === "Cassandra") {
+        console.log("Endpoint chosen changed to: ", endPointChoosen);
+        if (endPointChoosen === "Cassandra") {
         setSyntaxMode("pgsql"); //Todo error handling cql-mode
         }
-        if (endpoint === "Neo4J") {
+        if (endPointChoosen === "Neo4J") {
         setSyntaxMode("cypher");
         }
-        if (endpoint === "MongoDB") {
+        if (endPointChoosen === "MongoDB") {
         setSyntaxMode("mongodb");
         }
-        if (endpoint === "PostgreSQL") {
+        if (endPointChoosen === "PostgreSQL") {
         setSyntaxMode("pgsql");
         }
 
@@ -393,62 +376,26 @@ function ExerciseSheetC({ endpoint }) {
         return () => {
         window.removeEventListener("keydown", handleF5);
         };
-    }, [taskNumber]);
+    }, [endPointChoosen]);
 
-    const startTimer = () => {
-        setIsRunning(true);
-        setHasStarted(true);
-        setIsSaved(false);
-        setButtonState("Idle");
-    };
-
-    const handleChange = (event) => {
-        const { name, value } = event.target;
-
-        setFormData((prev) => ({ ...prev, [name]: value }));
-        setIsSaved(false);
-        setButtonState("Idle");
-        if (name === "is-finished-checkbox") {
-        setFormData((prev) => ({ ...prev, isFinished: event.target.checked }));
+    useEffect(() => {
+        const savedEndpoint = localStorage.getItem("currentEndpoint");
+        if (savedEndpoint) {
+        setEndPointChosen(savedEndpoint);
+        setPendingEndpoint(savedEndpoint);
         }
-    };
+    }, []);
 
-    const updateTaskAndFormData = (newTaskNumber) => {
-        let newTaskIndex = newTaskNumber - 1;
-        setTask(tasksArray[newTaskIndex]);
-        setTaskNumber(newTaskNumber);
-        setQueryResult("");
-        setError("");
-        getDataFromDB(newTaskNumber, username, selected_area);
-        setIsRunning(false);
-        setHasStarted(false);
-        sendDataToDb();
+    const handleRadioChange = (selected_endpoint) => {
+        console.log("Pending Endpoint: ", selected_endpoint.target.value);
+        setPendingEndpoint(selected_endpoint.target.value);
     };
-    const handleNextTask = () => {
-        openConfirmationDialog(() => {
-        if (taskNumber === tasksArray.length) {
-            alert("This is the last task");
-        } else {
-            updateTaskAndFormData(taskNumber + 1);
-        }
-        });
+    const handleEndpoint = () => {
+        console.log("New Endpoint: ", pendingEndpoint);
+        setEndPointChosen(pendingEndpoint);
+        localStorage.setItem("currentEndpoint", pendingEndpoint);
     };
-
-    const handlePrevTask = () => {
-        openConfirmationDialog(() => {
-        if (taskNumber > 1) {
-            updateTaskAndFormData(taskNumber - 1);
-        }
-        });
-    };
-
-    const handleTaskChange = (event) => {
-        const { value } = event.target;
-        openConfirmationDialog(() => {
-        setIsSaved(false);
-        updateTaskAndFormData(value);
-        });
-    };
+    
     const handleSave = () => {
         openConfirmationDialog(() => {
         sendDataToDb();
@@ -457,16 +404,13 @@ function ExerciseSheetC({ endpoint }) {
     const handleDownload = () => {
         openConfirmationDialog(() => {
         sendDataToDb();
-        const dataToSend = { title: area_name, areaId: area_id, selected_area: selected_area };
+        const title = "TestSession";
+        const dataToSend = { title, areaId: area_id, selected_area: selected_area };
         setIsSaved(false);
         navigate(
-            `/download?title=${dataToSend.title}&areaId=${dataToSend.areaId}&courseArea=${dataToSend.selected_area}`
+            `/download?title=${title}&areaId=${dataToSend.areaId}&courseArea=${dataToSend.selected_area}`
         );
         });
-    };
-
-    const handleTimerUpdate = (time) => {
-        setReceivedTime(time);
     };
 
     const handleEditorChange = (newContent) => {
@@ -504,7 +448,7 @@ function ExerciseSheetC({ endpoint }) {
         return { totalDistance, noCalculation, feedbackOutput };
     }
 
-    const isCorrectOptions = ["I don't know", "Yes", "No"];
+    const database_Endpoint = ["PostgreSQL", "Cassandra", "Neo4J", "MongoDB"];
     const difficultyOptions = [
         "No answer",
         "Very easy",
@@ -530,14 +474,13 @@ function ExerciseSheetC({ endpoint }) {
         <Container>
         
         <Typography variant="h4" sx={{p:2}}>{area_name}</Typography>
-        {task && (
+        {true && (
             <Box sx={{ flexGrow: 1 }}>
             <Grid container spacing={2}>
                 <Grid item xs={12} md={8}>
                 <Item sx={{ bgcolor: "rgb(247, 250, 250)" }}>
                     <Typography paragraph>
-                    <WarningAmberIcon></WarningAmberIcon> Always make sure to save
-                    the data of the current task before leaving
+                    <WarningAmberIcon></WarningAmberIcon> Always make sure to save the data of the current testing before leaving.
                     </Typography>{" "}
                     <Box>
                     {" "}
@@ -565,59 +508,65 @@ function ExerciseSheetC({ endpoint }) {
                     </Box>
                 </Item>
                 </Grid>
-                <Grid item xs={12} md={4}>
-                <Item sx={{ bgcolor: "rgb(247, 250, 250)" }}>
-                    {" "}
-                    <Box>
-                    <InputLabel id="task-number-label">
-                        Select another task you want to jump to:
-                    </InputLabel>
 
-                    <TextField
-                        select
-                        name="taskNumber"
-                        id="task-number-label"
-                        fullWidth
-                        value={taskNumber}
-                        onChange={handleTaskChange}
-                        aria-labelledby="Jump to task"
-                    >
-                        {tasksArray.map((task, index) => (
-                        <MenuItem
-                            key={index}
-                            value={index + 1}
-                            aria-label={task.subtasknumber}
-                        >
-                            {task.subtasknumber}
-                        </MenuItem>
-                        ))}
-                    </TextField>
-                    </Box>
-                </Item>
-                </Grid>
                 <Grid item xs={12} md={8}>
                 <Item>
                     {" "}
                     <Box aria-labelledby="Task topic, description and maximum time to solve the task">
                 
-                    <Typography variant="h4">{task.topic}</Typography>
-                    <Typography variant="h5">{task.subtasknumber}</Typography>
-                    <Typography variant="h6" >
-                        {task.maxtime}
-                    </Typography>
-                    <Typography >
-                        {task.description}
-                    </Typography>
+                    <Typography variant="h4"> Testing Area </Typography>
+                    {/*<Typography variant="h5"> task.subtasknumber</Typography>*/}
+                    <ImportantMsg
+                        message={
+                            <>
+                                Here you can try out queries and select different databases.
+                                If you want to select another database, please use one of the four options below and press "Set Endpoint".
+                                On the right side you can see the database schema for the selected database.
+                                For more information about the schema, try to look into your course materials for ideas.
+                            </>
+                        } 
+                        type="info"
+                    />
                     <hr></hr>
-                    <Typography>{task.hint}</Typography>
+                    <InputLabel
+                        id="selected-database"
+                        sx={{ fontSize: "20px", mb:0.5}}>
+                        Which database do you want to use?
+                    </InputLabel>
+                    <Typography >
+                        The Endpoint is set to "PostgreSQL" by default.
+                    </Typography>
+                    <RadioGroup
+                        name="endpoint"
+                        row
+                        id="selected-database"
+                        value={pendingEndpoint}
+                        onChange={handleRadioChange}
+                        aria-labelledby="Radiogroup to select if the input query returns a correct result"
+                    >
+                        {database_Endpoint.map((item, index) => (
+                        <FormControlLabel
+                            key={index}
+                            value={item}
+                            control={<Radio />}
+                            label={item}
+                            aria-label={item}
+                        />
+                        ))}
+                    </RadioGroup>
+                    <br></br>
+                    <Button
+                        variant="contained"
+                        onClick={handleEndpoint}>Set Endpoint
+                    </Button>
+                    <hr></hr>
                     </Box>
                     <Box p={0} aria-labelledby="Input Elements to solve the task">
-                    {hasStarted ? (
+                    {true ? (
                         <form>
                         <Box>
                             <InputLabel id="query-input-label">
-                            Type and run your query if you think this task is
-                            solvable with a query.
+                            Type and run your query to test it.
                             </InputLabel>
                         
                             <AceEditor
@@ -636,9 +585,14 @@ function ExerciseSheetC({ endpoint }) {
                             <PlayCircleFilledWhiteIcon></PlayCircleFilledWhiteIcon>
                             </GradientButton>
 
-                            {feedback_on && (
+                            {true && (
                             <ImportantMsg
-                                message="Note that the feedback functionality is a work in progress. It is possible that a message will appear stating that your result does not match the expected result. Your solution may still be correct. We are working on improving this functionality in the future so that your individual solution is evaluated with regard to the task description."
+                                message={
+                                    <>
+                                        Note that the selecting between databases and testing functionality is a work in progress.<br />
+                                        We are working on improving this functionality in the future.
+                                    </>
+                                }
                                 type="info"
                             />
                             )}
@@ -655,14 +609,14 @@ function ExerciseSheetC({ endpoint }) {
                             />
                             )}
 
-                            {queryResult && feedback_on && (
+                            {queryResult && true && (
                             <ImportantMsg
                                 message={feedback}
                                 type={feedbackType}
                             />
                             )}
 
-                            {endpoint === "Neo4J" && queryResult && (
+                            {endPointChoosen === "Neo4J" && queryResult && (
                             <ResultGraph
                                 queryResult={queryResult}
                                 onGetNodeAndEdgeCount={handleGetNodeAndEdgeCount}
@@ -782,271 +736,55 @@ function ExerciseSheetC({ endpoint }) {
                             </Box>
                             </>
                         )}
+
+                        <br />
                         <hr></hr>
-                        {/*TODO: if else ( ? : ) to check for an available LLM tip */}
-                        {feedback_on && (
-                            <>
-                            <Typography variant="h6" gutterBottom>
-                                LLM learning tip
+                
+                        <div>
+                        <Box>
+                            <Typography paragraph>
+                            <WarningAmberIcon></WarningAmberIcon> Always make sure to save the data of the current testing before leaving.
                             </Typography>
-                            <Box
-                                sx={ {
-                                padding: "10px",
-                                borderRadius: "5px",
-                                border: "black",
-                                } }
-                            >
-                                {<p>An LLM learning tip [..]</p>}
-                            </Box>
-                                
-                            {/*Available LLM learning tip*/}
-                            <button
-                            type="button"
-                            id="test_area"
-                            style={ {
-                                color: "black",
-                                borderRadius: 5,
-                                backgroundColor: "#388E3C",
-                                color: "white",
-                                border: "2px solid #388E3C",
-                                cursor: "pointer",
-                                padding: "5px 15px",
-                                marginLeft: "auto",
-                                marginRight: "20px",
-                            } }
-                            onClick={ () => {
-                                console.log("Available LLM learning tip");
-                            } }
-                            >
-                            Available LLM learning tip
-                            </button>
-
-                            {/*No available LLM learning tip.*/}
-                            <button
-                            type="button"
-                            id="test_area"
-                            style={ {
-                                color: "black",
-                                borderRadius: 5,
-                                backgroundColor: "#9c9c9cff",
-                                color: "white",
-                                border: "2px solid #939393ff",
-                                cursor: "pointer",
-                                padding: "5px 15px",
-                                marginLeft: "auto",
-                                marginRight: "20px",
-                            } }
-                            onClick={ () => {
-                                console.log("No available LLM learning tip");
-                            } }
-                            >
-                            No available LLM learning tip
-                            </button>
-
-                            </>
-                        )}
-
-                        <hr></hr>
-                        <InputLabel id="partial-solution-label">
-                            Your partial solution/further comments:
-                        </InputLabel>
-                        <TextField
-                            name="partialSolution"
-                            id="partial-solution-label"
-                            fullWidth
-                            multiline
-                            rows={6}
-                            value={formData.partialSolution}
-                            onChange={handleChange}
-                            aria-labelledby="Textfield for partial solution or comments"
-                        />
-                        <hr></hr>
-                        <InputLabel id="isCorrect-radiogroup">
-                            Do you think that your answer is correct?
-                        </InputLabel>
-                        <RadioGroup
-                            name="isCorrect"
-                            row
-                            id="isCorrect-radiogroup"
-                            value={formData.isCorrect}
-                            onChange={handleChange}
-                            aria-labelledby="Radiogroup to select if the input query returns a correct result"
-                        >
-                            {isCorrectOptions.map((item, index) => (
-                            <FormControlLabel
-                                key={index}
-                                value={item}
-                                control={<Radio />}
-                                label={item}
-                                aria-label={item}
-                            />
-                            ))}
-                        </RadioGroup>
-                        <hr></hr>
-                        <InputLabel id="difficulty-level-radiogroup">
-                            How difficult was this task for you?
-                        </InputLabel>
-                        <RadioGroup
-                            name="difficulty"
-                            row
-                            id="difficulty-level-radiogroup"
-                            defaultValue={"No answer"}
-                            value={formData.difficulty}
-                            onChange={handleChange}
-                            aria-labelledby="Radiogroup to select the perceived difficulty of the task"
-                        >
-                            {difficultyOptions.map((item, index) => (
-                            <FormControlLabel
-                                key={index}
-                                value={item}
-                                control={<Radio />}
-                                label={item}
-                                aria-label={item}
-                            />
-                            ))}
-                        </RadioGroup>
-                        <br />
-                        <hr></hr>
-                        <FormGroup>
-                            <FormControlLabel
-                            control={
-                                <Checkbox
-                                name="is-finished-checkbox"
-                                checked={formData.isFinished}
-                                onChange={handleChange}
-                                />
+                            <Button
+                            variant="contained"
+                            color={
+                                buttonState === "success"
+                                ? "success"
+                                : buttonState === "error"
+                                ? "error"
+                                : "primary"
                             }
-                            label="Check if you finished this exercise to see your progress on the dashboard assignment card"
-                            />
-                        </FormGroup>
-                        <br />
-                        <hr></hr>
-                        {taskNumber === tasksArray.length ? (
-                            <div>
-                            {" "}
-                            <OptTimer
-                                run={isRunning}
-                                taskNumber={taskNumber}
-                                area_id={area_id}
-                                username={username}
-                                onTimeUpdate={handleTimerUpdate}
-                                selected_area={selected_area}
-                            />
-                            <hr></hr>
-                            {taskNumber !== 1 && (
-                                <GradientButton
-                                aria-label="Save current entries and navigate to previous task"
-                                onClick={handlePrevTask}
-                                >
-                                Back{" "}
-                                <NavigateBeforeIcon></NavigateBeforeIcon>
-                                </GradientButton>
-                            )}{" "}
-                            <GradientButton
-                                aria-label="Save current entries and navigate to download page"
-                                onClick={handleDownload}
+                            onClick={handleSave /* sendDataToDb */}
+                            startIcon={renderIcon()}
+                            disabled={buttonState === "loading"}
                             >
-                                Finish <NavigateNextIcon></NavigateNextIcon>
-                            </GradientButton>
-                            </div>
-                        ) : (
-                            <div>
-                            <hr></hr>
-
-                            <OptTimer
-                                run={isRunning}
-                                taskNumber={taskNumber}
-                                area_id={area_id}
-                                username={username}
-                                onTimeUpdate={handleTimerUpdate}
-                                selected_area={selected_area}
-                            />
-
-                            <hr></hr>
-                            {taskNumber !== 1 && (
-                                <GradientButton
-                                aria-label="Save current entries of the task and navigate to previous task"
-                                onClick={handlePrevTask}
-                                >
-                                Back{" "}
-                                <NavigateBeforeIcon></NavigateBeforeIcon>
-                                </GradientButton>
-                            )}
-
-                            <GradientButton
-                                aria-label="Save current entries of this task and navigate to next task"
-                                onClick={handleNextTask}
+                            {buttonState === "loading"
+                                ? "Saving..."
+                                : "Save Entries"}
+                            </Button>
+                            <Button
+                            aria-label="Go to the download section"
+                            onClick={handleDownload}
                             >
-                                Next <NavigateNextIcon></NavigateNextIcon>
-                            </GradientButton>
-                            <Box>
-                                <Typography paragraph>
-                                <WarningAmberIcon></WarningAmberIcon> Always make
-                                sure to save the data of the current task before
-                                leaving
-                                </Typography>
-                                <Button
-                                variant="contained"
-                                color={
-                                    buttonState === "success"
-                                    ? "success"
-                                    : buttonState === "error"
-                                    ? "error"
-                                    : "primary"
-                                }
-                                onClick={handleSave /* sendDataToDb */}
-                                startIcon={renderIcon()}
-                                disabled={buttonState === "loading"}
-                                >
-                                {buttonState === "loading"
-                                    ? "Saving..."
-                                    : "Save Entries"}
-                                </Button>
-                                <Button
-                                aria-label="Go to the download section"
-                                onClick={handleDownload}
-                                >
-                                Go to download section{" "}
-                                <DownloadIcon></DownloadIcon>
-                                </Button>
-                            </Box>
-                            </div>
-                        )}{" "}
+                            Go to download section{" "}
+                            <DownloadIcon></DownloadIcon>
+                            </Button>
+                        </Box>
+                        </div>
+                    {" "}
                         </form>
                     ) : (
                         <div>
-                        <GradientButton
-                            aria-label="Start the task to open all task fields"
-                            onClick={startTimer}
-                        >
-                            Start task
-                            <HourglassEmptyIcon></HourglassEmptyIcon>
-                        </GradientButton>
                         <p>{""}</p>
-
-                        <ImportantMsg
-                            message="Note: A timer will start, when you start the task. You can stop
-                    and continue the timer if needed. Also make sure to save your
-                    data."
-                            type="info"
-                        />
-                        <ImportantMsg
-                            message="Please do not work longer than the specified time on a task! If you
-            think that you will not be able to finish the task in the given maximum
-            time, stop working on it 15 minutes before the end, and provide an
-            explanation containing the following information: Whether you think that
-            the task is solvable with the current system at all, and why? If you
-            think that is solvable with more time: which approach, would you try out
-            next? - Please also have a look at known issues regarding query execution (open menu -> Information)"
-                            type="info"
-                        />
+                    
                         </div>
                     )}
                     </Box>{" "}
                 </Item>
                 </Grid>
+    {/* Right side database schema */}
                 <Grid item xs={12} md={4}>
-                <DbAccordion endpoint={endpoint} />
+                <DbAccordion key={endPointChoosen} endpoint={endPointChoosen} />
                 <hr></hr>
             {/*     <Box
                     sx={{
@@ -1054,10 +792,10 @@ function ExerciseSheetC({ endpoint }) {
                     overflowY: "auto",
                     }}
                 >
-                    {endpoint === "PostgreSQL" && <PgDatabaseSchema />}
-                    {endpoint === "Cassandra" && <CasDataModelTable />}
-                    {endpoint === "Neo4J" && <NeoGraphC />}
-                    {endpoint === "MongoDB" && <MongoSchema />}
+                    {endPointChoosen === "PostgreSQL" && <PgDatabaseSchema />}
+                    {endPointChoosen === "Cassandra" && <CasDataModelTable />}
+                    {endPointChoosen === "Neo4J" && <NeoGraphC />}
+                    {endPointChoosen === "MongoDB" && <MongoSchema />}
                 </Box> */}
                 </Grid>
             </Grid>
@@ -1098,4 +836,4 @@ function ExerciseSheetC({ endpoint }) {
     );
     }
 
-export default ExerciseSheetC;
+export default TestingAreaC;
