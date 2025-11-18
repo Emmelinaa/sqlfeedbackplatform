@@ -44,7 +44,6 @@ const NewAreaSelect = () => {
         }
     };
 
-    // TODO: /testingArea
     const handleTestArea = () => {
         navigate("/testingArea")
     }
@@ -156,15 +155,15 @@ const NewAreaSelect = () => {
                         </Box>
                     </Grid>
 
-                    {/*SQL-Test-Area*/}
+                    {/*Testing Area*/}
                     <Grid item xs={12} title="SQL-Test-Area">
                         <Box sx={ {
-                            width: 450,
-                            height: 150,
+                            width: 400,
+                            height: 190,
                             bgcolor: "#F7F9FC",
                             borderRadius: 3,
                             border: "solid 2px #E4E9F0",
-                            p: 2,
+                            p: 2.5,
 
                             display: "flex",
                             flexDirection: "column",
@@ -173,23 +172,25 @@ const NewAreaSelect = () => {
                             margin: "0 auto",
                             } }
                         >
-                            <span style={ { fontSize: "21px" } }>
-                                SQL Test Area
+                            <span style={ { color: "#d80073ff", fontSize: "21px", marginTop: "10px" } }>
+                                Testing Area
                             </span>
 
                             <Box sx={ {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "space-between",
-                            margin: "8px",
+                            margin: "4px",
                             width: "100%",
                             alignItems: "center",
                             p: 1.5,
                             } }
                             >
                                 <p style={ { margin: 0 } }>
-                                    Here you can test out SQL queries <br></br>
-                                    anytime without any exercises.
+                                    You can test different queries for
+                                    the following database systems:<br></br>
+                                    PostgreSQL, MongoDB<br></br>
+                                    Cassandra, Neo4J
                                 </p>
                                 
                                 <button
@@ -198,13 +199,13 @@ const NewAreaSelect = () => {
                                     style={ {
                                         color: "black",
                                         borderRadius: 5,
-                                        backgroundColor: "#388E3C",
+                                        backgroundColor: "#e21e87ff",
                                         color: "white",
-                                        border: "2px solid #388E3C",
+                                        border: "2px solid #e6007bae",
                                         cursor: "pointer",
                                         padding: "5px 15px",
                                         marginLeft: "auto",
-                                        marginRight: "20px",
+                                        marginRight: "10px",
                                     } }
                                     onClick={ () => {
                                         handleTestArea();

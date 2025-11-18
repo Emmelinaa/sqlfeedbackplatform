@@ -38,11 +38,12 @@ import { fetchAreaNames } from "../../api/mainApi";
 
 const ManageExercises = () => {
   const [exercises, setExercises] = useState([]);
-  const [areamames, setAreaNames] = useState([]);
+  const [areaNames, setAreaNames] = useState([]);
   const [selectedArea, setSelectedArea] = useState("");
   const [selected_area_selection, setSelected_area_selection] = useState("");
   const [maxId, setMaxId] = useState(0);
   const [selectedExercise, setSelectedExercise] = useState(null);
+  const [exerciseEndpoint, setExerciseEndpoint] = useState("");
   const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
   const [actionType, setActionType] = useState("");
   const [formValues, setFormValues] = useState({
@@ -56,6 +57,7 @@ const ManageExercises = () => {
     maxtime: "",
     hint: "",
     tasknumber: "",
+    maxsql_points: 0,
   });
   const [openFormDialog, setOpenFormDialog] = useState(false);
   const [areaIdFilter, setAreaIdFilter] = useState(""); // New state for area_id filter
@@ -96,6 +98,7 @@ const ManageExercises = () => {
       maxtime: "",
       hint: "",
       tasknumber: "",
+      maxsql_points: 0,
     });
     setOpenFormDialog(true);
     setSelectedArea("");
@@ -104,6 +107,7 @@ const ManageExercises = () => {
   const handleEdit = (exercise) => {
     setActionType("edit");
     setSelectedExercise(exercise);
+    setExerciseEndpoint(exercise.endpoint);
     setSelectedArea(exercise.area_id);
     setSelected_area_selection(exercise.selected_area);
     setFormValues({ ...exercise });
@@ -133,6 +137,7 @@ const ManageExercises = () => {
       maxtime: "",
       hint: "",
       tasknumber: "",
+      maxsql_points: 0,
     });
   };
 
@@ -219,7 +224,14 @@ const ManageExercises = () => {
     const filteredStatementIds = exercises.filter(
       (exercise) => exercise.area_id === parseInt(area_id)
     );
-      
+
+    const areaObj = areaNames.find(
+      (item) =>
+        String(item.area_id) === String(area_id) &&
+        String(item.selected_area) === String(selected_area)
+    );
+    setExerciseEndpoint(areaObj?.endpoint || "");
+
   if (filteredStatementIds.length > 0) {
         let idArray = filteredStatementIds.map((item) => item.statement_id);
         let maxId = Math.max(...idArray) + 1;
@@ -229,6 +241,7 @@ const ManageExercises = () => {
           area_id: parseInt(area_id),
           selected_area: selected_area,
           statement_id: maxId,
+          endpoint: areaObj?.endpoint || "",
         });
       } else {
         setFormValues({
@@ -236,6 +249,7 @@ const ManageExercises = () => {
           area_id: parseInt(area_id),
           selected_area: selected_area,
           statement_id: 1,
+          endpoint: areaObj?.endpoint || "",
         });
       }
   };
@@ -366,7 +380,7 @@ const ManageExercises = () => {
               onChange={handleSelectedArea}
               label="Select Area"
             >
-              {areamames.map((item) => (
+              {areaNames.map((item) => (
                 <MenuItem key={item.area_id + "-" + item.selected_area} value={item.area_id + "-" + item.selected_area}>
                   {item.area_name} - Bereich: {item.selected_area}
                 </MenuItem>
@@ -435,6 +449,18 @@ const ManageExercises = () => {
             onChange={handleFormInputChange}
             style={{ marginBottom: "10px" }}
           />
+          {exerciseEndpoint && (
+            <TextField
+            fullWidth
+            variant="outlined"
+            label="Maximum Points for this task - e.g. '10' or '10.00'"
+            helperText="The number has to be at least 0 and not infinite. You can only use numbers from 0 to 100,00"
+            name="maxsql_points"
+            value={formValues.maxsql_points}
+            onChange={handleFormInputChange}
+            style={{ marginBottom: "10px" }}
+          />
+          )}
           <TextField
             fullWidth
             variant="outlined"

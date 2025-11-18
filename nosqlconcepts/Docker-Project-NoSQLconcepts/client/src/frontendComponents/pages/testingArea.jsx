@@ -283,6 +283,7 @@ function TestingAreaC() {
         }
 
         try {
+            console.log("8");
             const response = await sendToExecute(
                 apiRoute,
                 execQuery,
@@ -292,6 +293,7 @@ function TestingAreaC() {
             );
             console.log("SQL query of the student: " + execQuery);
 
+            setQueryFeedback_new(response.data.queryFeedback_new || "");
 
             if (typeof response.data.userQueryResult === "string") {
                 setQueryResult([{ output: response.data.userQueryResult }]);
@@ -324,13 +326,9 @@ function TestingAreaC() {
                 "Correct! Your query output is equal to the expected output."
                 );
 
-            setFeedbackType("success");
-        } else {
-            setFeedback(
-            "Your output does not match the expected output (if there is an expected output). Please try again, if you think that this task is solvable with a query. You can also write a comment in the partial solution textfield, explaining why your solution is correct. In some cases this message occurs because there is no expected output."
-            );
-
-                setFeedbackType("error");
+                setFeedbackType("success");
+            } else {
+                
             }
             setError("");
         } catch (error) {
@@ -394,6 +392,7 @@ function TestingAreaC() {
         console.log("New Endpoint: ", pendingEndpoint);
         setEndPointChosen(pendingEndpoint);
         localStorage.setItem("currentEndpoint", pendingEndpoint);
+        //window.location.reload();
     };
     
     const handleSave = () => {

@@ -107,6 +107,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   const [feedbackOutput, setFeedbackOutput] = useState([]);
   const [collectedEditSteps, setCollectedEditSteps] = useState([]);
 
+  const [maxPoints_SQL, setMaxPoints_SQL] = useState(0);
   useEffect(() => {
     const { totalDistance, noCalculation, feedbackOutput } = sqlDistanceHandling(queryFeedback_new || "");
     setTotalDistance(totalDistance);
@@ -133,8 +134,8 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     try {
       const data = await fetchTasksData(areaId, selected_area);
       setTasksArray(data);
-
       setTask(data[taskNumber - 1]);
+      setMaxPoints_SQL(data[taskNumber - 1]?.maxsql_points || 0);
     } catch (error) {
       console.error("Error fetching data:", error);
       setError("Error fetching data. Please try again later.");
@@ -410,6 +411,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     let newTaskIndex = newTaskNumber - 1;
     setTask(tasksArray[newTaskIndex]);
     setTaskNumber(newTaskNumber);
+    setMaxPoints_SQL(tasksArray[newTaskIndex]?.maxsql_points || 0);
     setQueryResult("");
     setError("");
     getDataFromDB(newTaskNumber, username, selected_area);
@@ -497,6 +499,17 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     return { totalDistance, noCalculation, feedbackOutput };
   }
 
+  function calculatedPoints(maxPoints_SQL, feedbackOutput) {
+    let minusPoints = 0;
+    feedbackOutput.forEach( a => {
+      console.log("(Edit Step) Cost with the errortyp are: ", a.editStep)
+      const match = a.editStep.match(/Cost\s*([\d.,]+):/i);
+      if (match) {
+        minusPoints += parseFloat(match[1].replace(",", "."));
+      }
+    });
+    return Math.max(0, parseFloat(maxPoints_SQL) - parseFloat(minusPoints));
+  }
   const isCorrectOptions = ["I don't know", "Yes", "No"];
   const difficultyOptions = [
     "No answer",
@@ -689,10 +702,13 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                         </Box>
                       </Box>
 
-                      {feedback_on && (
+                      {feedback_on && endpoint === "PostgreSQL" && (
                         <>
                           <Typography variant="h6" gutterBottom>
                             See Your SQL Feedback
+                          </Typography>
+                          <Typography variant="h7" gutterBottom>
+                            There are {maxPoints_SQL} points and you received {calculatedPoints(maxPoints_SQL, feedbackOutput)} points.
                           </Typography>
                           <ImportantMsg
                                 message={

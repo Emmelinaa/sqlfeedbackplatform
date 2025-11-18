@@ -555,6 +555,7 @@ app.post("/api/add-exercise", async (req, res) => {
       formValues.hint,
       formValues.tasknumber,
       formValues.selected_area,
+      formValues.maxsql_points,
     ],
     res
   );
@@ -575,6 +576,7 @@ app.post("/api/update-exercises", async (req, res) => {
       formValues.statement_id,
       formValues.area_id,
       formValues.selected_area,
+      formValues.maxsql_points,
     ],
     res
   );

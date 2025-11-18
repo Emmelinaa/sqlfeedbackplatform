@@ -25,7 +25,7 @@ INSERT INTO private.users(
 
 -- Table: tool.task_areas
 
- DROP TABLE IF EXISTS tool.task_areas;
+DROP TABLE IF EXISTS tool.task_areas;
 
 CREATE TABLE IF NOT EXISTS tool.task_areas
 (
@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS tool.task_statements
     hint text COLLATE pg_catalog."default",
     tasknumber text COLLATE pg_catalog."default",
     selected_area character varying(50),
+    maxsql_points numeric(5,2) DEFAULT 0,
     CONSTRAINT task_statements_pkey PRIMARY KEY (statement_id, area_id, selected_area),
     CONSTRAINT task_statements_area_id_fkey FOREIGN KEY (area_id, selected_area)
         REFERENCES tool.task_areas (area_id, selected_area) MATCH SIMPLE
