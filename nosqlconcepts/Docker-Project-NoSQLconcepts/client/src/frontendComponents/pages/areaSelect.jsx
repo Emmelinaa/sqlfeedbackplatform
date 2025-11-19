@@ -173,7 +173,7 @@ const NewAreaSelect = () => {
                             } }
                         >
                             <span style={ { color: "#d80073ff", fontSize: "21px", marginTop: "10px" } }>
-                                Testing Area
+                                SQL Testing Area
                             </span>
 
                             <Box sx={ {
@@ -186,11 +186,10 @@ const NewAreaSelect = () => {
                             p: 1.5,
                             } }
                             >
-                                <p style={ { margin: 0 } }>
-                                    You can test different queries for
-                                    the following database systems:<br></br>
-                                    PostgreSQL, MongoDB<br></br>
-                                    Cassandra, Neo4J
+                                <p style={ { margin: 0, paddingLeft: "5px" } }>
+                                    Here you can test your<br></br>
+                                    SQL queries anytime,<br></br>
+                                    without any exercises.
                                 </p>
                                 
                                 <button
@@ -204,8 +203,7 @@ const NewAreaSelect = () => {
                                         border: "2px solid #e6007bae",
                                         cursor: "pointer",
                                         padding: "5px 15px",
-                                        marginLeft: "auto",
-                                        marginRight: "10px",
+                                        marginRight: "25px",
                                     } }
                                     onClick={ () => {
                                         handleTestArea();

@@ -108,6 +108,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   const [collectedEditSteps, setCollectedEditSteps] = useState([]);
 
   const [maxPoints_SQL, setMaxPoints_SQL] = useState(0);
+
   useEffect(() => {
     const { totalDistance, noCalculation, feedbackOutput } = sqlDistanceHandling(queryFeedback_new || "");
     setTotalDistance(totalDistance);
@@ -216,6 +217,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
         processingTime: receivedTime,
         isFinished: formData.isFinished || false,
         editStepsList: collectedEditSteps,
+
       };
       setButtonState("loading");
       try {
@@ -510,6 +512,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     });
     return Math.max(0, parseFloat(maxPoints_SQL) - parseFloat(minusPoints));
   }
+
   const isCorrectOptions = ["I don't know", "Yes", "No"];
   const difficultyOptions = [
     "No answer",

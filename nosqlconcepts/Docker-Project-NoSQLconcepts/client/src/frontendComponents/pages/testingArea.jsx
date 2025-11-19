@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
@@ -13,14 +13,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {
   Box,
   Button,
-  TextField,
   InputLabel,
-  MenuItem,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  FormGroup,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
@@ -28,9 +21,6 @@ import {
   DialogTitle,
   Typography,
 } from "@mui/material";
-import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import DownloadIcon from "@mui/icons-material/Download";
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/theme-monokai";
@@ -42,9 +32,6 @@ import "../../custom_ace_files/theme-goethe.js";
 import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
 import ImportantMsg from "../components/otherComponents/importantMsg.jsx";
 
-import OptTimer from "../components/exerciseSheetComponents/timer.jsx";
-import ResultGraph from "../components/exerciseSheetComponents/ResultGraph.jsx";
-import ResultTable from "../components/exerciseSheetComponents/ResultTable.jsx";
 import {
   fetchTaskFormData,
   fetchTasksData,
@@ -54,10 +41,6 @@ import {
 import DbAccordion from "../components/exerciseSheetComponents/dbAccordion.jsx";
 import { sendToExecute } from "../api/queryApi.js";
 import { useAuth } from "../App.js";
-import PgDatabaseSchema from "../components/exerciseSheetComponents/pgSchema.jsx";
-import CasDataModelTable from "../components/exerciseSheetComponents/cassandraSchema.jsx";
-import NeoGraphC from "../components/exerciseSheetComponents/graph.jsx";
-import MongoSchema from "../components/exerciseSheetComponents/mongoSchema.jsx";
 import GradientButton from "../components/exerciseSheetComponents/gradientButton.jsx";
 const Item = styled(Paper)(({ theme }) => ({
   backgroundCoor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -67,14 +50,12 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
   overflow: "auto",
 }));
-// area_id, area_name, endpoint, feedback_on, selected_area
 function TestingAreaC() {
     const area_id = 1;
     const statement_id = 1;
     const taskNumber = 1;
     const selected_area = "testing_area";
-    const [endPointChoosen, setEndPointChosen] = useState("PostgreSQL");
-    const [pendingEndpoint, setPendingEndpoint] = useState(endPointChoosen);
+    const endPointChosen = "PostgreSQL";
 
 
     const { username } = useAuth();
@@ -100,7 +81,6 @@ function TestingAreaC() {
 
     const [queryResult, setQueryResult] = useState("");
     const [syntaxMode, setSyntaxMode] = useState("");
-    const [numNodes, setNumNodes] = useState(0);
     const [numEdges, setNumEdges] = useState(0);
     const [solutionResult, setSolutionResult] = useState("");
     const [feedback, setFeedback] = useState("");
@@ -268,18 +248,13 @@ function TestingAreaC() {
         console.log("5");
         let apiRoute = "";
         console.log("6");
-        if (endPointChoosen === "PostgreSQL") {
+        if (endPointChosen === "PostgreSQL") {
         console.log("7");
         apiRoute = "/execute-sql";
         }
-        if (endPointChoosen === "Cassandra") {
-        apiRoute = "/execute-cql";
-        }
-        if (endPointChoosen === "Neo4J") {
-        apiRoute = "/execute-cypher";
-        }
-        if (endPointChoosen === "MongoDB") {
-        apiRoute = "/execute-mql";
+        if (endPointChosen === "Cassandra" || endPointChosen === "Neo4J" || endPointChosen === "MongoDB") {
+        console.log("Error: The " + endPointChosen + " endpoint is unsupported in this SQL testing area.");
+        // navigate("/")
         }
 
         try {
@@ -347,18 +322,11 @@ function TestingAreaC() {
     };
     //###########
     useEffect(() => {
-        console.log("Endpoint chosen changed to: ", endPointChoosen);
-        if (endPointChoosen === "Cassandra") {
-        setSyntaxMode("pgsql"); //Todo error handling cql-mode
-        }
-        if (endPointChoosen === "Neo4J") {
-        setSyntaxMode("cypher");
-        }
-        if (endPointChoosen === "MongoDB") {
-        setSyntaxMode("mongodb");
-        }
-        if (endPointChoosen === "PostgreSQL") {
+        if (endPointChosen === "PostgreSQL") {
         setSyntaxMode("pgsql");
+        }
+        if (endPointChosen === "MongoDB" || endPointChosen === "Neo4J" || endPointChosen === "Cassandra") {
+        console.log("Error: The " + endPointChosen + " endpoint is unsupported in this SQL testing area.");
         }
 
         const fetchUser = async () => {
@@ -374,26 +342,7 @@ function TestingAreaC() {
         return () => {
         window.removeEventListener("keydown", handleF5);
         };
-    }, [endPointChoosen]);
-
-    useEffect(() => {
-        const savedEndpoint = localStorage.getItem("currentEndpoint");
-        if (savedEndpoint) {
-        setEndPointChosen(savedEndpoint);
-        setPendingEndpoint(savedEndpoint);
-        }
     }, []);
-
-    const handleRadioChange = (selected_endpoint) => {
-        console.log("Pending Endpoint: ", selected_endpoint.target.value);
-        setPendingEndpoint(selected_endpoint.target.value);
-    };
-    const handleEndpoint = () => {
-        console.log("New Endpoint: ", pendingEndpoint);
-        setEndPointChosen(pendingEndpoint);
-        localStorage.setItem("currentEndpoint", pendingEndpoint);
-        //window.location.reload();
-    };
     
     const handleSave = () => {
         openConfirmationDialog(() => {
@@ -416,46 +365,7 @@ function TestingAreaC() {
         setFormData({ ...formData, query_text: newContent });
         setButtonState("Idle");
     };
-    const handleGetNodeAndEdgeCount = (nodes, edges) => {
-        setNumNodes(nodes);
-        setNumEdges(edges);
-    };
 
-    function sqlDistanceHandling(queryFeedback_new) {
-        let totalDistance = "";
-        let noCalculation = "";
-        let feedbackOutput = [];
-        console.log("Query Feedback New: ", queryFeedback_new);
-
-        if (/^\s*ERROR:\s*/.test(queryFeedback_new)) {
-        noCalculation = queryFeedback_new.replace(/^\s*ERROR:\s*/, "").trim();
-
-        } else {
-        totalDistance = queryFeedback_new.split("\n")[0].split(":").slice(1).join(":").trim();
-
-        const outputSplitter = queryFeedback_new.split(">>>").map( a => a.trim() ).filter( Boolean ).slice(1);
-
-        feedbackOutput = outputSplitter.map( a => {
-            const lines = a.split("\n");
-            const editStep = (lines.shift() || "").trim();
-            let solution = lines.join("\n").trim();
-            solution = solution.replace(/,$/gm, "");
-        return { editStep, solution };
-        });
-        }
-
-        return { totalDistance, noCalculation, feedbackOutput };
-    }
-
-    const database_Endpoint = ["PostgreSQL", "Cassandra", "Neo4J", "MongoDB"];
-    const difficultyOptions = [
-        "No answer",
-        "Very easy",
-        "Easy",
-        "Normal",
-        "Difficult",
-        "Very difficult",
-    ];
     const renderIcon = () => {
         if (buttonState === "loading") {
         return <CircularProgress size={24} color="inherit" />;
@@ -518,46 +428,13 @@ function TestingAreaC() {
                     <ImportantMsg
                         message={
                             <>
-                                Here you can try out queries and select different databases.
-                                If you want to select another database, please use one of the four options below and press "Set Endpoint".
-                                On the right side you can see the database schema for the selected database.
+                                Here you can try out SQL queries.
+                                On the right side you can see the database schema for the PostgreSQL database.
                                 For more information about the schema, try to look into your course materials for ideas.
                             </>
                         } 
                         type="info"
                     />
-                    <hr></hr>
-                    <InputLabel
-                        id="selected-database"
-                        sx={{ fontSize: "20px", mb:0.5}}>
-                        Which database do you want to use?
-                    </InputLabel>
-                    <Typography >
-                        The Endpoint is set to "PostgreSQL" by default.
-                    </Typography>
-                    <RadioGroup
-                        name="endpoint"
-                        row
-                        id="selected-database"
-                        value={pendingEndpoint}
-                        onChange={handleRadioChange}
-                        aria-labelledby="Radiogroup to select if the input query returns a correct result"
-                    >
-                        {database_Endpoint.map((item, index) => (
-                        <FormControlLabel
-                            key={index}
-                            value={item}
-                            control={<Radio />}
-                            label={item}
-                            aria-label={item}
-                        />
-                        ))}
-                    </RadioGroup>
-                    <br></br>
-                    <Button
-                        variant="contained"
-                        onClick={handleEndpoint}>Set Endpoint
-                    </Button>
                     <hr></hr>
                     </Box>
                     <Box p={0} aria-labelledby="Input Elements to solve the task">
@@ -588,7 +465,7 @@ function TestingAreaC() {
                             <ImportantMsg
                                 message={
                                     <>
-                                        Note that the selecting between databases and testing functionality is a work in progress.<br />
+                                        Note that the SQL testing functionality is a work in progress.<br />
                                         We are working on improving this functionality in the future.
                                     </>
                                 }
@@ -608,26 +485,6 @@ function TestingAreaC() {
                             />
                             )}
 
-                            {queryResult && true && (
-                            <ImportantMsg
-                                message={feedback}
-                                type={feedbackType}
-                            />
-                            )}
-
-                            {endPointChoosen === "Neo4J" && queryResult && (
-                            <ResultGraph
-                                queryResult={queryResult}
-                                onGetNodeAndEdgeCount={handleGetNodeAndEdgeCount}
-                            />
-                            )}{" "}
-                            {numNodes === 0 && numEdges === 0 && queryResult && (
-                            <ResultTable
-                                queryResult={queryResult}
-                                resultSize={formData.resultSize}
-                                title={area_name}
-                            />
-                            )}
                             {error && (
                             <ImportantMsg
                                 message={
@@ -648,97 +505,8 @@ function TestingAreaC() {
                             {<p>Result Size: {formData.resultSize}</p>}
                             </Box>
                         </Box>
-
-                        {feedback_on && (
-                            <>
-                            <Typography variant="h6" gutterBottom>
-                                See Your SQL Feedback
-                            </Typography>
-                            <ImportantMsg
-                                    message={
-                                    <>
-                                        Your output does not match the expected output (if there is an expected output).
-                                        You can see an overview of the errors below and click any item to view more details.
-                                        <br />
-                                        If an error has 'Cost: 0' then it's a mathematical or logical transformation that does not change the meaning of the SQL query.
-                                        There are some operator types (like <code>LIKE</code>) that cannot be parsed yet,
-                                        so no detailed feedback is available for them at the moment.
-                                        </>
-                                        }
-                                    type="info"
-                                />
-
-                            <Box
-                                sx={ {
-                                    padding: "10px",
-                                    borderRadius: "5px",
-                                    border: "1px solid #cac9c9ff",
-                                    minHeight: 150,
-                                    whiteSpace: "pre-wrap",
-                                } }
-                                >
-                                {totalDistance
-                                    ? "These are the " + totalDistance + " suggested changes to your query:"
-                                    : ""}
-
-                                {totalDistance === ""
-                                    ? (
-                                        <div
-                                        style={{
-                                            minHeight: 150,
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            textAlign: "center",
-                                            fontSize: "15.5px",
-                                        }}
-                                        >
-                                        {noCalculation}
-                                        </div>
-                                    )
-                                    : 
-                                    feedbackOutput.map((entry, i) => (
-                                    <details key={i}
-                                        style={ {
-                                        border: "1px solid #bdbdbdff",
-                                        borderRadius: "5px",
-                                        marginTop: "10px",
-                                        overflow: "hidden"
-                                        } }
-                                    >
-                                        <summary
-                                        style={ {
-                                        justifyContent: "flex-start",
-                                        padding: "10px 15px",
-                                        listStyle: "none",
-                                        display: "flex",
-                                        fontWeight: "bold",
-                                        cursor: "pointer",
-                                        } }
-                                        >
-                                        { entry.editStep }
-                                        </summary>
-                                        <div
-                                        style={ {
-                                        justifyContent: "flex-start",
-                                        padding: "10px 45px",
-                                        listStyle: "none",
-                                        display: "flex",
-                                        } }
-                                        >
-                                        { entry.solution }
-                                        </div>
-                                    </details>
-                                    
-                                    ))
-                                    }
-                            </Box>
-                            </>
-                        )}
-
                         <br />
                         <hr></hr>
-                
                         <div>
                         <Box>
                             <Typography paragraph>
@@ -783,7 +551,7 @@ function TestingAreaC() {
                 </Grid>
     {/* Right side database schema */}
                 <Grid item xs={12} md={4}>
-                <DbAccordion key={endPointChoosen} endpoint={endPointChoosen} />
+                <DbAccordion key={endPointChosen} endpoint={endPointChosen} />
                 <hr></hr>
             {/*     <Box
                     sx={{
@@ -791,10 +559,10 @@ function TestingAreaC() {
                     overflowY: "auto",
                     }}
                 >
-                    {endPointChoosen === "PostgreSQL" && <PgDatabaseSchema />}
-                    {endPointChoosen === "Cassandra" && <CasDataModelTable />}
-                    {endPointChoosen === "Neo4J" && <NeoGraphC />}
-                    {endPointChoosen === "MongoDB" && <MongoSchema />}
+                    {endPointChosen === "PostgreSQL" && <PgDatabaseSchema />}
+                    {endPointChosen === "Cassandra" && <CasDataModelTable />}
+                    {endPointChosen === "Neo4J" && <NeoGraphC />}
+                    {endPointChosen === "MongoDB" && <MongoSchema />}
                 </Box> */}
                 </Grid>
             </Grid>
