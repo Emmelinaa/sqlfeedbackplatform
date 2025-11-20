@@ -29,6 +29,7 @@ import FillOutSurvey from "./components/surveyComponents/FillOutSurvey.js";
 import SurveyResults from "./components/surveyComponents/SurveyResults.js";
 import ExerciseSheetC from "./pages/exerciseSheet.jsx";
 import NewDashboard from "./pages/dashboard.jsx";
+import TestingAreaC from "./pages/testingArea.jsx";
 import NewStatistics from "./pages/statistics.jsx";
 import UserProfile from "./pages/userProfile.jsx";
 import AdminPage from "./pages/adminPage.jsx";
@@ -112,6 +113,11 @@ const AppRoutes = ({ assignments }) => {
     {
       path: "/dashboard",
       element: <ProtectedRoute element={<NewDashboard />} />,
+    },
+
+    {
+      path: "/testingArea",
+      element: <ProtectedRoute element={<TestingAreaC />} />,
     },
 
     {
