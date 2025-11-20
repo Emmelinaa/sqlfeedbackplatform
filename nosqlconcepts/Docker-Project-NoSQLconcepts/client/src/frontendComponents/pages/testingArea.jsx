@@ -31,7 +31,8 @@ import "../../custom_ace_files/mode-pgsql.js";
 import "../../custom_ace_files/theme-goethe.js";
 import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
 import ImportantMsg from "../components/otherComponents/importantMsg.jsx";
-
+import ResultGraph from "../components/exerciseSheetComponents/ResultGraph.jsx";
+import ResultTable from "../components/exerciseSheetComponents/ResultTable.jsx";
 import {
   fetchTaskFormData,
   fetchTasksData,
@@ -57,6 +58,7 @@ function TestingAreaC() {
     const selected_area = "testing_area";
     const endPointChosen = "PostgreSQL";
 
+    let area_name = "";
 
     const { username } = useAuth();
     const navigate = useNavigate();
@@ -81,6 +83,7 @@ function TestingAreaC() {
 
     const [queryResult, setQueryResult] = useState("");
     const [syntaxMode, setSyntaxMode] = useState("");
+    const [numNodes, setNumNodes] = useState(0);
     const [numEdges, setNumEdges] = useState(0);
     const [solutionResult, setSolutionResult] = useState("");
     const [feedback, setFeedback] = useState("");
@@ -90,7 +93,6 @@ function TestingAreaC() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [confirmCallback, setConfirmCallback] = useState(null);
 
-    const [queryFeedback_new, setQueryFeedback_new] = useState("");
     const [totalDistance, setTotalDistance] = useState("");
     const [noCalculation, setNoCalculation] = useState("");
     const [feedbackOutput, setFeedbackOutput] = useState([]);
@@ -259,6 +261,8 @@ function TestingAreaC() {
 
         try {
             console.log("8");
+            console.log("execQuery: ", execQuery);
+            console.log("apiRoute: ", apiRoute, "execQuery: ", execQuery, "taskNumber: ", taskNumber, "area_id: ", area_id, "selected_area: ", selected_area);
             const response = await sendToExecute(
                 apiRoute,
                 execQuery,
@@ -267,8 +271,6 @@ function TestingAreaC() {
                 selected_area
             );
             console.log("SQL query of the student: " + execQuery);
-
-            setQueryFeedback_new(response.data.queryFeedback_new || "");
 
             if (typeof response.data.userQueryResult === "string") {
                 setQueryResult([{ output: response.data.userQueryResult }]);
@@ -307,17 +309,16 @@ function TestingAreaC() {
             }
             setError("");
         } catch (error) {
-        setQueryFeedback_new("");
-        setError(
-            `Error: ${error.response.data.error}. Note: Please try again, if you think that this task is solvable with a query. You can also write a comment in the partial solution textfield, explaining why your solution is correct. In some cases this message occurs because there is no solution query (use the textfield for your solution then).`
-        );
-        setQueryResult("");
-        setFormData((prev) => ({
-            ...prev,
-            query: execQuery,
-            resultSize: 0,
-            isExecutable: "No",
-        }));
+            setError(
+                `Error: ${error.response.data.error}.`
+            );
+            setQueryResult("");
+            setFormData((prev) => ({
+                ...prev,
+                query: execQuery,
+                resultSize: 0,
+                isExecutable: "No",
+            }));
         }
     };
     //###########
@@ -365,6 +366,10 @@ function TestingAreaC() {
         setFormData({ ...formData, query_text: newContent });
         setButtonState("Idle");
     };
+    const handleGetNodeAndEdgeCount = (nodes, edges) => {
+    setNumNodes(nodes);
+    setNumEdges(edges);
+};
 
     const renderIcon = () => {
         if (buttonState === "loading") {
@@ -423,7 +428,7 @@ function TestingAreaC() {
                     {" "}
                     <Box aria-labelledby="Task topic, description and maximum time to solve the task">
                 
-                    <Typography variant="h4"> Testing Area </Typography>
+                    <Typography variant="h4"> SQL Testing Area </Typography>
                     {/*<Typography variant="h5"> task.subtasknumber</Typography>*/}
                     <ImportantMsg
                         message={
@@ -482,6 +487,27 @@ function TestingAreaC() {
                                 </div>
                                 }
                                 type="success"
+                            />
+                            )}
+
+                            {queryResult && true && (
+                            <ImportantMsg
+                                message={feedback}
+                                type={feedbackType}
+                            />
+                            )}
+
+                            {endPointChosen === "Neo4J" && queryResult && (
+                            <ResultGraph
+                                queryResult={queryResult}
+                                onGetNodeAndEdgeCount={handleGetNodeAndEdgeCount}
+                            />
+                            )}{" "}
+                            {numNodes === 0 && numEdges === 0 && queryResult && (
+                            <ResultTable
+                                queryResult={queryResult}
+                                resultSize={formData.resultSize}
+                                title={area_name}
                             />
                             )}
 

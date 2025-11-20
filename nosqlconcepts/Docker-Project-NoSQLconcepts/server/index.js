@@ -975,6 +975,7 @@ app.post("/api/execute-sql", async (req, res) => {
   const { execQuery, taskNumber, taskAreaId, selected_area } = req.body;
 
   try {
+    console.log("Executing SQL Query:", execQuery, "for taskNumber:", taskNumber, "taskAreaId:", taskAreaId, "selected_area:", selected_area);
     // Execute user's SQL query
     let userQueryResult = [{}];
     if (!execQuery.includes("private") && !execQuery.includes("tool")) {
