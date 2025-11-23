@@ -5,7 +5,7 @@ const mainQueries = {
   getUserDataQuery: `SELECT * FROM tool.user_task_data WHERE username = $1 AND task_area_id = $2 AND selected_area = $3 order by statement_id`,
   getTasksQuery: `SELECT tasknumber, topic, subtasknumber, maxtime, statement_text as description, hint, maxsql_points FROM tool.task_statements WHERE area_id = $1 AND selected_area = $2 order by statement_id;`,
 
-  getTaskFormDataQuery: `SELECT query_text, result_size, is_executable, is_correct, partial_solution, difficulty_level, is_finished FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 AND statement_id = $3 AND selected_area = $4`,
+  getTaskFormDataQuery: `SELECT query_text, result_size, is_executable, is_correct, partial_solution, difficulty_level, is_finished, edit_steps_list, sql_point_list FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 AND statement_id = $3 AND selected_area = $4`,
   storeHistoryDataQuery: `INSERT INTO tool.query_history (
         username,
         statement_id,

@@ -646,11 +646,11 @@ function stringifyDistance_new(distance, steps = null, path = null) {
 
                 } else if (stringifyEdit(steps[i]).includes("Replace an asterisk with")) {
                     diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));
-                    newOrder += `\n\n-------------------: ${diffElement}`;
+                    newOrder += `\n\nReplace an asterisk with ${diffElement}`;
 
                 } else if (stringifyEdit(steps[i]).includes("Replace a number of expressions")) {
                     diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));
-                    newOrder += `\n\nReplace these expressions: ${diffElement}`;
+                    newOrder += `\n\nReplace these expressions: ${diffElement}`, "with an asterisk";
 
                 // -------------------- No Match --------------------
                 } else {

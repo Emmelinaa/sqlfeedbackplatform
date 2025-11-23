@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS tool.user_task_data
     processing_time integer,
     is_finished boolean,
     edit_steps_list text[],
+    sql_point_list numeric(5,2)[],
     CONSTRAINT user_task_data_pkey PRIMARY KEY (data_id),
     CONSTRAINT user_task_data_task_area_id_fkey FOREIGN KEY (task_area_id, selected_area)
         REFERENCES tool.task_areas (area_id, selected_area) MATCH SIMPLE

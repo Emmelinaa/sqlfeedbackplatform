@@ -398,6 +398,10 @@ const handleDataStorage = async (req, res, table) => {
     if (editStepsList && !Array.isArray(editStepsList)) {
       editStepsList = [editStepsList];
     }
+    let sqlPointsList = dataToSend.sqlPointsList;
+    if (sqlPointsList && !Array.isArray(sqlPointsList)) {
+      sqlPointsList = [sqlPointsList];
+    }
     const { rows } = await pool2.query(handleDataStorageReadQuery, [
       /* table, */
       dataToSend.username,
@@ -417,12 +421,13 @@ is_executable = $8,
 result_size = $9,
 processing_time = $10,
 is_finished = $11,
-edit_steps_list = $12
+edit_steps_list = $12,
+sql_point_list = $13
 WHERE 
 username = $1 
 AND statement_id = $2 
 AND task_area_id = $3
-AND selected_area = $13;`;
+AND selected_area = $14;`;
       await pool2.query(handleDataStorageUpdateQuery, [
         dataToSend.username,
         dataToSend.statementId,
@@ -436,6 +441,7 @@ AND selected_area = $13;`;
         dataToSend.processingTime,
         dataToSend.isFinished,
         editStepsList,
+        sqlPointsList,
         dataToSend.selected_area
         /* table, */
       ]);
@@ -455,8 +461,9 @@ AND selected_area = $13;`;
   difficulty_level,
   processing_time,
   is_finished,
-  edit_steps_list
-) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);`;
+  edit_steps_list,
+  sql_point_list
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14);`;
       await pool2.query(handleDataStorageInsertQuery, [
         dataToSend.username,
         dataToSend.statementId,
@@ -470,7 +477,8 @@ AND selected_area = $13;`;
         dataToSend.difficultyLevel,
         dataToSend.processingTime,
         dataToSend.isFinished,
-        editStepsList
+        Array.isArray(editStepsList) ? editStepsList : [],
+        Array.isArray(sqlPointsList) ? sqlPointsList : [],
         /* table, */
       ]);
     }

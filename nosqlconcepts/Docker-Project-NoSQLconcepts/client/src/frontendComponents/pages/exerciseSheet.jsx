@@ -106,22 +106,19 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   const [noCalculation, setNoCalculation] = useState("");
   const [feedbackOutput, setFeedbackOutput] = useState([]);
   const [collectedEditSteps, setCollectedEditSteps] = useState([]);
+  const [hasSolutionQuery, setHasSolutionQuery] = useState(false);
+  const [pointsHistory, setPointsHistory] = useState([]);
+  const [errorCount, setErrorCount] = useState(0);
 
   const [maxPoints_SQL, setMaxPoints_SQL] = useState(0);
 
   useEffect(() => {
-    const { totalDistance, noCalculation, feedbackOutput } = sqlDistanceHandling(queryFeedback_new || "");
+    const { totalDistance, noCalculation, feedbackOutput, errorCount } = sqlDistanceHandling(queryFeedback_new || "");
     setTotalDistance(totalDistance);
     setNoCalculation(noCalculation);
     setFeedbackOutput(feedbackOutput);
-    setCollectedEditSteps((prev) => [...prev, ...(feedbackOutput ?? []).map(f => f.editStep).filter(Boolean)]);
+    setErrorCount(errorCount);
   }, [queryFeedback_new]);
-
-  useEffect(() => {
-  if (hasStarted && collectedEditSteps.length > 0) {
-    sendDataToDb();
-  }
-}, [collectedEditSteps]);
 
   const handleF5 = (event) => {
     if (event.key === "F5") {
@@ -165,6 +162,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
           isFinished: response[0].is_finished || false,
         };
         setCollectedEditSteps(response[0].edit_steps_list || []);
+        setPointsHistory(response[0].sql_point_list || []);
       } else {
         formDataObj = {
           query_text: "",
@@ -175,6 +173,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
           difficulty: "No answer",
           isFinished: false,
         };
+        setPointsHistory([]);
       }
 
       setFormData(formDataObj);
@@ -201,7 +200,10 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     setIsDialogOpen(false); // Close the dialog without executing
   };
 
-  const sendDataToDb = async () => {
+  const sendDataToDb = async (overridePoints, overrideEditSteps) => {
+    const sqlPointsList = Array.isArray(overridePoints) ? overridePoints : pointsHistory;
+    const editStepsToSave = Array.isArray(overrideEditSteps) ? overrideEditSteps : collectedEditSteps;
+
     if (hasStarted) {
       const dataToSend = {
         username: username,
@@ -216,7 +218,8 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
         difficultyLevel: formData.difficulty || "0",
         processingTime: receivedTime,
         isFinished: formData.isFinished || false,
-        editStepsList: collectedEditSteps,
+        editStepsList: editStepsToSave,
+        sqlPointsList,
 
       };
       setButtonState("loading");
@@ -266,19 +269,11 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   //############# in progress
 
   const executeQuery = async () => {
-    console.log("1");
     sendDataToHistory();
-    console.log("2");
-    sendDataToDb();
-    console.log("3");
     setQueryResult("");
-    console.log("4");
     const execQuery = formData.query_text;
-    console.log("5");
     let apiRoute = "";
-    console.log("6");
     if (endpoint === "PostgreSQL") {
-      console.log("7");
       apiRoute = "/execute-sql";
     }
     if (endpoint === "Cassandra") {
@@ -292,7 +287,6 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     }
 
     try {
-      console.log("8");
       const response = await sendToExecute(
         apiRoute,
         execQuery,
@@ -300,12 +294,23 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
         area_id,
         selected_area
       );
-      console.log("9");
       console.log("SQL query of the student: " + execQuery);
       console.log("Correct SQL query:", response.data.solutionQuery);
       console.log("queryFeedback_new: ", response.data.queryFeedback_new);
 
+      setHasSolutionQuery(Boolean(response.data.solutionQuery));
       setQueryFeedback_new(response.data.queryFeedback_new || "");
+
+      const { feedbackOutput } = sqlDistanceHandling(response.data.queryFeedback_new || "");
+      const currentSQLPoints = calculatedPoints(maxPoints_SQL, feedbackOutput);
+
+      const newSteps = feedbackOutput.map(item => item.editStep).filter(Boolean);
+      const mergedSteps = [...collectedEditSteps, ...newSteps];
+      setCollectedEditSteps(mergedSteps);
+      
+      const nextPoints = [...pointsHistory, currentSQLPoints];
+      setPointsHistory(nextPoints);
+      sendDataToDb(nextPoints, mergedSteps);
 
       if (typeof response.data.userQueryResult === "string") {
         setQueryResult([{ output: response.data.userQueryResult }]);
@@ -317,14 +322,14 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
       if (typeof response.data.userQueryResult === "string") {
         setFormData((prev) => ({
           ...prev,
-          query: execQuery,
+          query_text: execQuery,
           resultSize: 1,
           isExecutable: "Yes",
         }));
       } else {
         setFormData((prev) => ({
           ...prev,
-          query: execQuery,
+          query_text: execQuery,
           resultSize: response.data.userQueryResult.length,
           isExecutable: "Yes",
         }));
@@ -355,7 +360,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
       setQueryResult("");
       setFormData((prev) => ({
         ...prev,
-        query: execQuery,
+        query_text: execQuery,
         resultSize: 0,
         isExecutable: "No",
       }));
@@ -479,6 +484,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     let totalDistance = "";
     let noCalculation = "";
     let feedbackOutput = [];
+    let errorCount = 0;
     console.log("Query Feedback New: ", queryFeedback_new);
 
     if (/^\s*ERROR:\s*/.test(queryFeedback_new)) {
@@ -493,18 +499,18 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
         const lines = a.split("\n");
         const editStep = (lines.shift() || "").trim();
         let solution = lines.join("\n").trim();
-        solution = solution.replace(/,$/gm, "");
+        solution = solution.replace(/,{2,}$/gm, m => m.slice(0,1));
       return { editStep, solution };
       });
+      errorCount = feedbackOutput.length;
     }
 
-    return { totalDistance, noCalculation, feedbackOutput };
+    return { totalDistance, noCalculation, feedbackOutput, errorCount };
   }
 
   function calculatedPoints(maxPoints_SQL, feedbackOutput) {
     let minusPoints = 0;
     feedbackOutput.forEach( a => {
-      console.log("(Edit Step) Cost with the errortyp are: ", a.editStep)
       const match = a.editStep.match(/Cost\s*([\d.,]+):/i);
       if (match) {
         minusPoints += parseFloat(match[1].replace(",", "."));
@@ -705,14 +711,16 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                         </Box>
                       </Box>
 
-                      {feedback_on && endpoint === "PostgreSQL" && (
+                      {feedback_on && endpoint === "PostgreSQL" && hasSolutionQuery &&(
                         <>
                           <Typography variant="h6" gutterBottom>
                             See Your SQL Feedback
                           </Typography>
-                          <Typography variant="h7" gutterBottom>
-                            There are {maxPoints_SQL} points and you received {calculatedPoints(maxPoints_SQL, feedbackOutput)} points.
-                          </Typography>
+                          {hasSolutionQuery && (
+                            <Typography variant="h7" gutterBottom>
+                              There are {maxPoints_SQL} points and you received {calculatedPoints(maxPoints_SQL, feedbackOutput)} points.
+                            </Typography>
+                          )}
                           <ImportantMsg
                                 message={
                                   <>
@@ -737,7 +745,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                               } }
                             >
                               {totalDistance
-                                ? "These are the " + totalDistance + " suggested changes to your query:"
+                                ? "These are the " + errorCount + " suggested changes to your query:"
                                 : ""}
 
                               {totalDistance === ""
