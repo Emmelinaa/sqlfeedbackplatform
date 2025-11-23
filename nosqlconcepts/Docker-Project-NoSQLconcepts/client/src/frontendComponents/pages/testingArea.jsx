@@ -21,6 +21,7 @@ import {
   DialogTitle,
   Typography,
 } from "@mui/material";
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import DownloadIcon from "@mui/icons-material/Download";
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/theme-monokai";
@@ -31,6 +32,8 @@ import "../../custom_ace_files/mode-pgsql.js";
 import "../../custom_ace_files/theme-goethe.js";
 import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
 import ImportantMsg from "../components/otherComponents/importantMsg.jsx";
+
+import OptTimer from "../components/exerciseSheetComponents/timer.jsx";
 import ResultGraph from "../components/exerciseSheetComponents/ResultGraph.jsx";
 import ResultTable from "../components/exerciseSheetComponents/ResultTable.jsx";
 import {
@@ -65,6 +68,7 @@ function TestingAreaC() {
 
     const [task, setTask] = useState("");
     const [isRunning, setIsRunning] = useState(false);
+    const [hasStarted, setHasStarted] = useState(false);
 
     const [tasksArray, setTasksArray] = useState([]);
     const [buttonState, setButtonState] = useState("idle");
@@ -80,6 +84,7 @@ function TestingAreaC() {
     });
 
     const [isSaved, setIsSaved] = useState(false);
+    const [receivedTime, setReceivedTime] = useState(null);
 
     const [queryResult, setQueryResult] = useState("");
     const [syntaxMode, setSyntaxMode] = useState("");
@@ -87,7 +92,7 @@ function TestingAreaC() {
     const [numEdges, setNumEdges] = useState(0);
     const [solutionResult, setSolutionResult] = useState("");
     const [feedback, setFeedback] = useState("");
-    const [feedbackType, setFeedbackType] = useState("error");
+    const [feedbackType, setFeedbackType] = useState("");
     const [error, setError] = useState("");
     const [fetcherror, setFetchError] = useState("");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -190,6 +195,7 @@ function TestingAreaC() {
             partialSolution: formData.partialSolution || "",
             difficultyLevel: formData.difficulty || "0",
             isFinished: formData.isFinished || false,
+            processingTime: receivedTime,
             editStepsList: collectedEditSteps,
         };
         setButtonState("loading");
@@ -344,6 +350,13 @@ function TestingAreaC() {
         window.removeEventListener("keydown", handleF5);
         };
     }, []);
+
+    const startTimer = () => {
+        setIsRunning(true);
+        setHasStarted(true);
+        setIsSaved(false);
+        setButtonState("Idle");
+    };
     
     const handleSave = () => {
         openConfirmationDialog(() => {
@@ -362,14 +375,18 @@ function TestingAreaC() {
         });
     };
 
+    const handleTimerUpdate = (time) => {
+        setReceivedTime(time);
+    };
+
     const handleEditorChange = (newContent) => {
         setFormData({ ...formData, query_text: newContent });
         setButtonState("Idle");
     };
     const handleGetNodeAndEdgeCount = (nodes, edges) => {
-    setNumNodes(nodes);
-    setNumEdges(edges);
-};
+        setNumNodes(nodes);
+        setNumEdges(edges);
+    };
 
     const renderIcon = () => {
         if (buttonState === "loading") {
@@ -443,7 +460,7 @@ function TestingAreaC() {
                     <hr></hr>
                     </Box>
                     <Box p={0} aria-labelledby="Input Elements to solve the task">
-                    {true ? (
+                    {hasStarted ? (
                         <form>
                         <Box>
                             <InputLabel id="query-input-label">
@@ -532,6 +549,14 @@ function TestingAreaC() {
                             </Box>
                         </Box>
                         <br />
+                        <OptTimer
+                            run={isRunning}
+                            taskNumber={taskNumber}
+                            area_id={area_id}
+                            username={username}
+                            onTimeUpdate={handleTimerUpdate}
+                            selected_area={selected_area}
+                        />
                         <hr></hr>
                         <div>
                         <Box>
@@ -567,11 +592,22 @@ function TestingAreaC() {
                     {" "}
                         </form>
                     ) : (
-                        <div>
-                        <p>{""}</p>
-                    
-                        </div>
-                    )}
+                    <div>
+                      <GradientButton
+                        aria-label="Start sql testing timer"
+                        onClick={startTimer}
+                      >
+                        Start SQL testing
+                        <HourglassEmptyIcon></HourglassEmptyIcon>
+                      </GradientButton>
+                      <p>{""}</p>
+
+                      <ImportantMsg
+                        message="Note: A timer will start, when you begin."
+                        type="info"
+                      />
+                    </div>
+                  )}
                     </Box>{" "}
                 </Item>
                 </Grid>

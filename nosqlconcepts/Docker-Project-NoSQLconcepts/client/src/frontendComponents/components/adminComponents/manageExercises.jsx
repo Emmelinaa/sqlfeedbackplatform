@@ -260,6 +260,10 @@ const ManageExercises = () => {
     (selected_area_selection === "" || exercise.selected_area === selected_area_selection)
   );
   });
+  
+  const displayAreaNames = areaNames.filter(
+    (item) => item.selected_area !== "testing_area"
+  );
 
   const uniqueAreaIds = [
     ...new Set(exercises.map((exercise) => exercise.area_name)),
@@ -380,7 +384,7 @@ const ManageExercises = () => {
               onChange={handleSelectedArea}
               label="Select Area"
             >
-              {areaNames.map((item) => (
+              {displayAreaNames.map((item) => (
                 <MenuItem key={item.area_id + "-" + item.selected_area} value={item.area_id + "-" + item.selected_area}>
                   {item.area_name} - Bereich: {item.selected_area}
                 </MenuItem>

@@ -36,6 +36,7 @@ import {
   get_rank,
 } from "./statisticsfunctions";
 import { checkAuth } from "../../api/loginApi";
+import ImportantMsg from "../otherComponents/importantMsg.jsx";
 
 // Card style for hover effect
 let cardStyle = {
@@ -50,10 +51,7 @@ let cardStyle = {
   overflow: "auto",
 };
 
-const isSQL = true;
-
 function mapEditStepToCategory(editStep) {
-  console.log("Editstep: ", editStep);
 
   // Horizontal Type Variations (no \n since the display is in the bar)
   // "Swap arguments / Swap nesting / mirror"
@@ -255,6 +253,12 @@ function StatisticsC() {
 
   const [areaID_selected_area, setAreaID_SelectedArea] = useState("");
   const [splitSelected_area, setSelected_area] = useState("");
+
+  const [exerciseMaxPoints, setExerciseMaxPoints] = useState(null);
+  const [averageReceivedPoints, setAverageReceivedPoints] = useState(null);
+
+  const isTestingArea = splitSelected_area === "testing_area";
+  const isSQL = splitSelected_area === "sql-beginner";
 
   // Effect to set document title on component mount
   useEffect(() => {
@@ -719,6 +723,39 @@ function StatisticsC() {
       String(item.area_id).trim() === String(selectedAreaId).trim() &&
       String(item.selected_area).trim() === String(splitSelected_area).trim()
   );
+
+  // Max SQL Points and Average received Points for selected SQL Exercise
+  useEffect(() => {
+    if (isSQL) {
+      if (!selectedStatementId) { setExerciseMaxPoints(null); return; }
+
+      const filteredTD = taskData.filter(
+        (item) =>
+          String(item.statement_id).trim() === String(selectedStatementId).trim() &&
+          String(item.area_id).trim() === String(selectedAreaId).trim() &&
+          String(item.selected_area).trim() === String(splitSelected_area).trim()
+      );
+      const maxSQLPointsTD = filteredTD[0]?.maxsql_points ?? null;
+      setExerciseMaxPoints(maxSQLPointsTD);
+      console.log("Max Points (exercise):", maxSQLPointsTD);
+
+      const filteredDataNotTesting = filteredData.filter(
+        (item) =>
+          item.selected_area !== "testing_area"
+      );
+
+      const allSqlPoints = filteredDataNotTesting.flatMap((item) =>
+        Array.isArray(item.sql_point_list) ? item.sql_point_list : []
+      );
+      const avgPoints =
+        allSqlPoints.length
+          ? (allSqlPoints.reduce((s, n) => s + Number(n || 0), 0) / allSqlPoints.length).toFixed(2)
+          : null;
+      setAverageReceivedPoints(avgPoints);
+      console.log("Avg SQL points (all users):", avgPoints);
+    }
+  }, [filteredData]);
+
   return (
     <Grid container spacing={2} alignItems="center">
       {/* 1. Task selection section */}
@@ -753,6 +790,15 @@ function StatisticsC() {
           ))}
         </Select>
       </Grid>
+
+      {isSQL && (
+        <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "center" }}>
+          <ImportantMsg
+            message={`The maximum points for this task are: ${exerciseMaxPoints ?? "-"} and on the average the received points are: ${averageReceivedPoints ?? "-"}`}
+            type="info"
+          />
+        </Grid>
+      )}
 
       {/* TOP 1/3 - Needed Time & Difficulty */}
       {filteredData.length > 0 && (
@@ -794,7 +840,7 @@ function StatisticsC() {
               </Button>
             </Box>
           </Grid>
-
+        {!isTestingArea && (
           <Grid item xs={12} md={6}>
             <Box
               height="100%"
@@ -838,6 +884,7 @@ function StatisticsC() {
               </Button>
             </Box>
           </Grid>
+        )}
         </>
       )}
 
@@ -867,7 +914,7 @@ function StatisticsC() {
       )}
 
       {/* TOP 2/3 - Excess & Missing */}
-      {filteredAreaData.length > 0 && isSQL && isAdmin && ( 
+      {filteredAreaData.length > 0 && isSQL && isAdmin && !isTestingArea && ( 
         <>
           <Grid item xs={12} md={6}>
             <Box
@@ -975,7 +1022,7 @@ function StatisticsC() {
       )}
 
       {/* TOP 3/3 - Horizontal & Shortcut */}
-      {filteredAreaData.length > 0 && isSQL && isAdmin && ( 
+      {filteredAreaData.length > 0 && isSQL && isAdmin && !isTestingArea && (
         <>
           <Grid item xs={12} md={6}>
             <Box
@@ -1084,13 +1131,13 @@ function StatisticsC() {
       )}
 
       <Grid item xs={12}>
-        <Divider sx={ { my: 2, backgroundColor: "black", height: "2px" } } />
+        <Divider sx={ { my: 1, backgroundColor: "black", height: "2px" } } />
       </Grid>
 
       {/* BOTTOM 1/3 - Needed Time & Difficulty */}
       {filteredAreaData.length > 0 && isSQL && isAdmin && (
         <>
-
+        
           <Grid item xs={12} md={6}>
             <Box
               height="100%"
@@ -1130,7 +1177,7 @@ function StatisticsC() {
               </Button>
             </Box>
           </Grid>
-
+          {!isTestingArea &&(
           <Grid item xs={12} md={6}>
             <Box
               height="100%"
@@ -1174,13 +1221,13 @@ function StatisticsC() {
               </Button>
             </Box>
           </Grid>
-
+          )}
         </>
       )}
 
 
       {/* BOTTOM 2/3 - Excess & Missing */}
-      {filteredAreaData.length > 0 && ( 
+      {filteredAreaData.length > 0 && isAdmin && !isTestingArea && ( 
         <>
 
           <Grid item xs={12} md={6}>
@@ -1288,7 +1335,7 @@ function StatisticsC() {
       )}
 
       {/* BOTTOM 3/3 - horizontalEdit & shortcutEdit */}
-      {filteredAreaData.length > 0 && isSQL && isAdmin && ( 
+      {filteredAreaData.length > 0 && isSQL && isAdmin && !isTestingArea && ( 
         <>
 
           <Grid item xs={12} md={6}>
