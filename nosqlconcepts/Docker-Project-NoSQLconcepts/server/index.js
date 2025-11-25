@@ -15,6 +15,7 @@ const mainQueries = require("./queries/mainQueries");
 const adminQueries = require("./queries/adminQueries");
 const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
+//const axios = require('axios');
 
 
 require("dotenv").config();
@@ -2304,8 +2305,39 @@ You are a helpful tutor. Provide clear, constructive feedback that helps the stu
   }
 }); */
 
+//################# LLM ######################################################
+app.post('/api/LLMfeedback', async (req, res) => {
+  const { questionData, studentAnswer, toolFeedback } = req.body;
 
+  console.log("questionData: ", questionData);
+  console.log("studentAnswer: ", studentAnswer);
+  console.log("toolFeedback: ", toolFeedback);
 
+  const prompt = `
+Question: ${questionData}
+Student Answer: "${studentAnswer}"
+SQL Feedback: "${toolFeedback}"
+
+You are a helpful tutor.
+Provide clear, constructive feedback that helps the student understand their mistake and how to improve their answer.
+The students have to find the correct query themself, so do provide only a hint in your output without a solution query.
+Also limit your output to 300 characters.
+`;
+
+  try {
+    const response = await axios.post('http://localhost:11434/api/chat', {
+      model: 'mistral',
+      // model: 'llama2',
+      messages: [{ role: 'user', content: prompt }],
+      stream: false
+    });
+
+    res.json({ feedback: response.data.message.content.trim() });
+  } catch (error) {
+    console.error('Error from Ollama:', error.response?.data || error.message);
+    res.status(500).json({ error: 'Failed to get feedback from Ollama' });
+  }
+});
 
 
 //################# start server ######################################################
