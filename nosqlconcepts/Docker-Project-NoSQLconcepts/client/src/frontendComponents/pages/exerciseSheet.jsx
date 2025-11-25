@@ -50,6 +50,7 @@ import {
   fetchTasksData,
   postHistoryData,
   postTaskFormData,
+  fetchLLMFeedback,
 } from "../api/mainApi.js";
 import DbAccordion from "../components/exerciseSheetComponents/dbAccordion.jsx";
 import { sendToExecute } from "../api/queryApi.js";
@@ -111,6 +112,10 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   const [errorCount, setErrorCount] = useState(0);
 
   const [maxPoints_SQL, setMaxPoints_SQL] = useState(0);
+
+  const [llmError, setLlmError] = useState("");
+  const [llmTip, setLlmTip] = useState("");
+  const [llmWorking, setLlmWorking] = useState(false);
 
   useEffect(() => {
     const { totalDistance, noCalculation, feedbackOutput, errorCount } = sqlDistanceHandling(queryFeedback_new || "");
@@ -485,7 +490,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     let noCalculation = "";
     let feedbackOutput = [];
     let errorCount = 0;
-    console.log("Query Feedback New: ", queryFeedback_new);
+    // console.log("Query Feedback New: ", queryFeedback_new);
 
     if (/^\s*ERROR:\s*/.test(queryFeedback_new)) {
       noCalculation = queryFeedback_new.replace(/^\s*ERROR:\s*/, "").trim();
@@ -540,6 +545,43 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
     }
     return <SaveIcon />;
   };
+
+  // take the exersice description, editsteps
+  const llmFeedback = async (feedbackOutput) => {
+    console.log("LLM Feedback Function");
+    setLlmWorking(true);
+
+    try {
+      console.log("1");
+      // Task Question Data
+      const questionData = [
+        task.topic ? "Topic: " + task.topic + ", " : "",
+        task.description ? "Description: " + task.description + ", " : "",
+        task.hint ? "Hint: " + task.hint : ""
+      ].filter(Boolean).join(" ");
+      console.log("questionData: ", questionData);
+
+      // Student Answer Data
+      const studentAnswer = "Student Answer: " + formData.query_text;
+      console.log("studentAnswer: ", studentAnswer);
+
+      // Tool Feedback Data
+      const toolFeedback = feedbackOutput.map((e, i) => `${i + 1}. ${e.editStep}: ${e.solution}`).join('\n');
+      console.log("Tool Feedback: ", toolFeedback);
+
+      // API Call
+      const response = await fetchLLMFeedback(questionData, studentAnswer, toolFeedback);
+      console.log("Response: ", response);
+
+    } catch (error) {
+      console.log("error");
+      console.error("Error:", error);
+      setLlmError("Failed to get answer from LLM.");
+      setLlmWorking(false);
+      setLlmTip("No LLM Tip available.");
+    }
+
+  }
 
   return (
     <Container>
@@ -834,14 +876,12 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                             marginLeft: "auto",
                             marginRight: "20px",
                           } }
-                          onClick={ () => {
-                            console.log("Available LLM learning tip");
-                          } }
+                          onClick={() => llmFeedback(feedbackOutput)}
                         >
-                          Available LLM learning tip
+                          LLM learning tip
                         </button>
 
-                        {/*No available LLM learning tip.*/}
+                        {/*No available LLM learning tip.
                         <button
                           type="button"
                           id="test_area"
@@ -861,7 +901,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                           } }
                         >
                           No available LLM learning tip
-                        </button>
+                        </button>*/}
 
                         </>
                       )}

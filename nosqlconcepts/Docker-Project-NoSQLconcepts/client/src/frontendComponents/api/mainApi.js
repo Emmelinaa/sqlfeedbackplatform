@@ -150,3 +150,19 @@ export const postTimerData = async (username, areaId, taskNumber, time) => {
     throw error;
   }
 };
+
+// LLM API call
+export const fetchLLMFeedback = async (questionData, studentAnswer, toolFeedback) => {
+  try {
+    const response = await axios.post(`${API_URL}/LLMfeedback`, {
+      questionData,
+      studentAnswer,
+      toolFeedback,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching LLM feedback:", error);
+    throw error;
+  }
+};
