@@ -13,14 +13,10 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {
   Box,
   Button,
-  TextField,
   InputLabel,
-  MenuItem,
   RadioGroup,
   FormControlLabel,
   Radio,
-  FormGroup,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
@@ -105,9 +101,6 @@ function TestingAreaC() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [confirmCallback, setConfirmCallback] = useState(null);
 
-    const [totalDistance, setTotalDistance] = useState("");
-    const [noCalculation, setNoCalculation] = useState("");
-    const [feedbackOutput, setFeedbackOutput] = useState([]);
     const [collectedEditSteps, setCollectedEditSteps] = useState([]);
 
     const dataset_Endpoint = ["Students", "Hospital"];
