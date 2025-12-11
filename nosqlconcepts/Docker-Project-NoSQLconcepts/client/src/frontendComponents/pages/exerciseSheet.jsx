@@ -117,6 +117,8 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   const [llmTip, setLlmTip] = useState("");
   const [llmWorking, setLlmWorking] = useState(false);
 
+  const sqlSchema = "students";
+
   useEffect(() => {
     const { totalDistance, noCalculation, feedbackOutput, errorCount } = sqlDistanceHandling(queryFeedback_new || "");
     setTotalDistance(totalDistance);
@@ -297,7 +299,8 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
         execQuery,
         taskNumber,
         area_id,
-        selected_area
+        selected_area,
+        sqlSchema,
       );
       console.log("SQL query of the student: " + execQuery);
       console.log("Correct SQL query:", response.data.solutionQuery);
@@ -1106,7 +1109,18 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
               </Item>
             </Grid>
             <Grid item xs={12} md={4}>
-              <DbAccordion endpoint={endpoint} />
+              {endpoint === "PostgreSQL" ? (
+                <DbAccordion
+                  endpoint={endpoint}
+                  selectedSchema={sqlSchema}
+                  selectedArea={selected_area}
+                />
+              ) : (
+                <DbAccordion
+                  endpoint={endpoint}
+                  selectedArea={selected_area}
+                />
+              )}
               <hr></hr>
           {/*     <Box
                 sx={{

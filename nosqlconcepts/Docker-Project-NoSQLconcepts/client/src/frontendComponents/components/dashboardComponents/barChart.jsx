@@ -18,7 +18,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 
-export default function BarChartC({ isUser, isTimeChart }) {
+export default function BarChartC({ isUser, isTimeChart, selectedArea }) {
   const { username } = useAuth();
   const [chartData, setChartData] = useState([]);
   const [xAxisData, setXAxisData] = useState([]);
@@ -29,21 +29,21 @@ export default function BarChartC({ isUser, isTimeChart }) {
       try {
         let data;
         if (isUser && isTimeChart) {
-          const rawData = await fetchUserTimeChartData(username);
+          const rawData = await fetchUserTimeChartData(username, selectedArea);
           data = transformUserTimeChartData(rawData);
         } else if (!isUser && isTimeChart) {
-          const rawData = await fetchTimeChartData();
+          const rawData = await fetchTimeChartData(selectedArea);
           data = transformTimeChartData(rawData);
         } else if (isUser && !isTimeChart) {
-          const rawData = await fetchUserTaskChartData(username);
+          const rawData = await fetchUserTaskChartData(username, selectedArea);
           data = transformUserTaskChartData(rawData);
         } else if (!isUser && !isTimeChart) {
-          const rawData = await fetchTaskChartData();
+          const rawData = await fetchTaskChartData(selectedArea);
           data = transformTaskChartData(rawData);
         }
 
         setChartData(data);
-        const names = await fetchAreaNames();
+        const names = await fetchAreaNames(selectedArea);
         setXAxisData(names);
       } catch (error) {
         console.error("Error fetching chart data:", error);
@@ -53,7 +53,7 @@ export default function BarChartC({ isUser, isTimeChart }) {
     };
 
     fetchData();
-  }, [isUser, isTimeChart, username]);
+  }, [isUser, isTimeChart, username, selectedArea]);
 
   const transformUserTimeChartData = (data) => {
     return data.map((item) => ({

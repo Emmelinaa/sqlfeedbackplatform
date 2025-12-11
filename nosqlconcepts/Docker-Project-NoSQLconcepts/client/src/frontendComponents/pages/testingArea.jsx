@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
@@ -13,7 +13,14 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {
   Box,
   Button,
+  TextField,
   InputLabel,
+  MenuItem,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  FormGroup,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
@@ -102,6 +109,11 @@ function TestingAreaC() {
     const [noCalculation, setNoCalculation] = useState("");
     const [feedbackOutput, setFeedbackOutput] = useState([]);
     const [collectedEditSteps, setCollectedEditSteps] = useState([]);
+
+    const dataset_Endpoint = ["Students", "Hospital"];
+    const [selectedSchema, setSelectedSchema] = useState("students");
+    const [datasetChoosen, setDatasetChoosen] = useState("Students");
+    const [pendingDataset, setPendingDataset] = useState("Students");
 
     const handleF5 = (event) => {
         if (event.key === "F5") {
@@ -245,36 +257,27 @@ function TestingAreaC() {
     //############# in progress
 
     const executeQuery = async () => {
-        console.log("1");
         sendDataToHistory();
-        console.log("2");
         sendDataToDb();
-        console.log("3");
         setQueryResult("");
-        console.log("4");
         const execQuery = formData.query_text;
-        console.log("5");
         let apiRoute = "";
-        console.log("6");
         if (endPointChosen === "PostgreSQL") {
-        console.log("7");
         apiRoute = "/execute-sql";
         }
         if (endPointChosen === "Cassandra" || endPointChosen === "Neo4J" || endPointChosen === "MongoDB") {
-        console.log("Error: The " + endPointChosen + " endpoint is unsupported in this SQL testing area.");
+            console.log("Error: The " + endPointChosen + " endpoint is unsupported in this SQL testing area.");
         // navigate("/")
         }
 
         try {
-            console.log("8");
-            console.log("execQuery: ", execQuery);
-            console.log("apiRoute: ", apiRoute, "execQuery: ", execQuery, "taskNumber: ", taskNumber, "area_id: ", area_id, "selected_area: ", selected_area);
             const response = await sendToExecute(
                 apiRoute,
                 execQuery,
                 taskNumber,
                 area_id,
-                selected_area
+                selected_area,
+                selectedSchema
             );
             console.log("SQL query of the student: " + execQuery);
 
@@ -333,7 +336,7 @@ function TestingAreaC() {
         setSyntaxMode("pgsql");
         }
         if (endPointChosen === "MongoDB" || endPointChosen === "Neo4J" || endPointChosen === "Cassandra") {
-        console.log("Error: The " + endPointChosen + " endpoint is unsupported in this SQL testing area.");
+            console.log("Error: The " + endPointChosen + " endpoint is unsupported in this SQL testing area.");
         }
 
         const fetchUser = async () => {
@@ -350,6 +353,33 @@ function TestingAreaC() {
         window.removeEventListener("keydown", handleF5);
         };
     }, []);
+
+    useEffect(() => {
+        const savedDataset = localStorage.getItem("currentDataset");
+        if (savedDataset) {
+            const pendingLabel = savedDataset === "hospital" ? "Hospital" : "Students";
+            setDatasetChoosen(pendingLabel);
+            setPendingDataset(pendingLabel);
+            setSelectedSchema(savedDataset);
+        } else {
+            setDatasetChoosen("Students");
+            setPendingDataset("Students");
+            setSelectedSchema("students");
+        }
+    }, []);
+
+    const handleRadioChange = (selected_dataset) => {
+        setPendingDataset(selected_dataset.target.value);
+        setDatasetChoosen(selected_dataset.target.value);
+        setSelectedSchema(selected_dataset.target.value.toLowerCase());
+    };
+    const handleDatasetChange = () => {
+        setDatasetChoosen(pendingDataset);
+        const mapped = pendingDataset && pendingDataset.toLowerCase() === "hospital" ? "hospital" : "students";
+        setDatasetChoosen(pendingDataset);
+        setSelectedSchema(mapped);
+        localStorage.setItem("currentDataset", mapped);
+    };
 
     const startTimer = () => {
         setIsRunning(true);
@@ -457,7 +487,41 @@ function TestingAreaC() {
                         } 
                         type="info"
                     />
+
                     <hr></hr>
+                    <InputLabel
+                        id="selected-database"
+                        sx={{ fontSize: "20px", mb:0.5}}>
+                        Which dataset do you want to use?
+                    </InputLabel>
+                    <Typography >
+                        The Dataset is set to "Students" by default.
+                    </Typography>
+                    <RadioGroup
+                        name="endpoint"
+                        row
+                        id="selected-database"
+                        value={datasetChoosen}
+                        onChange={handleRadioChange}
+                        aria-labelledby="Radiogroup to select the dataset"
+                    >
+                        {dataset_Endpoint.map((item, index) => (
+                        <FormControlLabel
+                            key={index}
+                            value={item}
+                            control={<Radio />}
+                            label={item}
+                            aria-label={item}
+                        />
+                        ))}
+                    </RadioGroup>
+                    <br></br>
+                    <Button
+                        variant="contained"
+                        onClick={handleDatasetChange}>Set Dataset
+                    </Button>
+                    <hr></hr>
+
                     </Box>
                     <Box p={0} aria-labelledby="Input Elements to solve the task">
                     {hasStarted ? (
@@ -613,7 +677,12 @@ function TestingAreaC() {
                 </Grid>
     {/* Right side database schema */}
                 <Grid item xs={12} md={4}>
-                <DbAccordion key={endPointChosen} endpoint={endPointChosen} />
+                <DbAccordion
+                    key={`${endPointChosen}-${selectedSchema}`}
+                    endpoint={endPointChosen}
+                    selectedSchema={selectedSchema}
+                    selectedArea={selected_area}
+                />
                 <hr></hr>
             {/*     <Box
                     sx={{

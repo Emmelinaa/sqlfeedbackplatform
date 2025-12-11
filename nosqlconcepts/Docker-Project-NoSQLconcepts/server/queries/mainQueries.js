@@ -42,7 +42,7 @@ const mainQueries = {
       ON foreign_constraints.table_name = c.table_name
       AND foreign_constraints.column_name = c.column_name
       WHERE 
-      c.table_schema = 'public';`,
+      c.table_schema = $1;`,
   getSolutionQuery: `SELECT solution_query FROM tool.task_statements WHERE statement_id = $1 AND area_id = $2 AND selected_area = $3;`,
   getDownloadDataFromDBQuery: `SELECT statement_id, query_text, result_size, is_executable, partial_solution, is_correct, difficulty_level, processing_time, is_finished FROM tool.user_task_data WHERE task_area_id = $1 AND username = $2 AND selected_area = $3 order by statement_id`,
   getTimerQuery:`Select processing_time from tool.user_task_data where username = $1 and task_area_id = $2 and statement_id = $3 and selected_area = $4`,

@@ -9,7 +9,7 @@ import { fetchLineChartData } from "../../api/chartsApi";
 import { format } from "date-fns";
 import { useAuth } from "../../App";
 
-export default function LineChartC() {
+export default function LineChartC({ selectedArea }) {
   const { username } = useAuth();
   const [limit, setLimit] = useState(7);
   const [loading, setLoading] = useState(true);
@@ -17,9 +17,9 @@ export default function LineChartC() {
   const [seriesData, setSeriesData] = useState([]);
   
 
-  const fetchData = async (username) => {
+  const fetchData = async (username, selectedArea) => {
     try {
-      const result = await fetchLineChartData(username, limit);
+      const result = await fetchLineChartData(username, limit, selectedArea);
       if (result.length > 0) {
         const data = result[0].data;
         const dataDate = data.map((d) => new Date(d.x));
@@ -46,16 +46,14 @@ export default function LineChartC() {
 
   useEffect(() => {
     const fetchUser = async () => {
-   
-      if (username) {
-       
-         fetchData(username);
+      if (username && selectedArea) {
+         fetchData(username, selectedArea);
       }
     };
 
     fetchUser();
    
-  }, [username, limit]);
+  }, [username, limit, selectedArea]);
 
   const handleChange = (event) => {
     setLimit(event.target.value);

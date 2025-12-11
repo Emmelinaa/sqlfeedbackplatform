@@ -2,9 +2,11 @@ import axios from "axios";
 
 const API_URL = "/api";
 
-export const fetchAreaNames = async () => {
+export const fetchAreaNames = async (selectedArea) => {
   try {
-    const response = await axios.get(`${API_URL}/area-names`);
+    const response = await axios.get(`${API_URL}/area-names`, {
+      params: { selectedArea },
+    });
     return response.data.map((area) => ({
       area_id: area.area_id,
       area_name: area.area_name,
@@ -96,9 +98,9 @@ export const postHistoryData = async (dataToSend) => {
   }
 };
 
-export const fetchDbStructure = async (dbendpoint) => {
+export const fetchDbStructure = async (dbendpoint, params = {}) => {
   try {
-    const response = await axios.get(`${API_URL}${dbendpoint}`);
+    const response = await axios.get(`${API_URL}${dbendpoint}`, { params });
     return response;
   } catch (error) {
     console.error("Error fetching area names:", error);

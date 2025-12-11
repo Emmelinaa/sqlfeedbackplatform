@@ -532,7 +532,7 @@ addEdit(atomicEdits, {
 
 addEdit(atomicEdits, {
     name: "setTableJoinType",
-    description: "Set complex join-type on a from-element (change cross join to a complex join)",
+    description: "Set (missing) complex join-type on a from-element (change cross join to a complex join)",
     cost: 1,
     perform: (query: Query, _schema: Schema, meta: MetaInfo, result: Query[]) => {
         if(!meta.from.join) return;
@@ -553,7 +553,7 @@ addEdit(atomicEdits, {
 
 addEdit(atomicEdits, {
     name: "unsetTableJoinType",
-    description: "Unset complex join-type on a from-element (change complex join to cross join)",
+    description: "Unset (excess) complex join-type on a from-element (change complex join to cross join)",
     cost: 1,
     perform: (query: Query, _schema: Schema, _meta: MetaInfo, result: Query[]) => {
         for(let f=0; f<query.fromLength; ++f) {
@@ -1209,7 +1209,7 @@ addEdit(atomicEdits, {
 
 addEdit(atomicEdits, {
     name: "setOrderbyDescending",
-    description: "Set order of order-by-element from ascending to descending",
+    description: "Set (missing) order of order-by-element from ascending to descending",
     cost: 1,
     perform: (query: Query, _schema: Schema, _meta: MetaInfo, result: Query[]) => {
         for(let o=0; o<query.orderbyLength; ++o) {
@@ -1223,7 +1223,7 @@ addEdit(atomicEdits, {
 
 addEdit(atomicEdits, {
     name: "unsetOrderbyDescending",
-    description: "Set order of order-by-element from descending to ascending",
+    description: "Set (missing) order of order-by-element from descending to ascending",
     cost: 1,
     perform: (query: Query, _schema: Schema, _meta: MetaInfo, result: Query[]) => {
         for(let o=0; o<query.orderbyLength; ++o) {

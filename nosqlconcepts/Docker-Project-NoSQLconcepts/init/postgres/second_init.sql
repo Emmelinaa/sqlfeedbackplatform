@@ -7,6 +7,9 @@ CREATE DATABASE IF NOT EXISTS krankenhaus;
 use krankenhaus;
 # SET FOREIGN_KEY_CHECKS = 0;*/
 
+CREATE SCHEMA IF NOT EXISTS hospital;
+SET search_path TO hospital, public;
+
 DROP TABLE IF EXISTS mitarbeiter CASCADE;
 CREATE TABLE mitarbeiter (
 	pnr SERIAL PRIMARY KEY,

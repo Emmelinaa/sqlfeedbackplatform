@@ -352,6 +352,10 @@ function StatisticsC() {
     setSelectedAreaId(area_id);
     setSelected_area(selected_area);
     getTaskData(area_id, selected_area);
+
+    if (selected_area === "testing_area") {
+      setSelectedStatementId(1);
+    }
   };
 
   // CSV download function

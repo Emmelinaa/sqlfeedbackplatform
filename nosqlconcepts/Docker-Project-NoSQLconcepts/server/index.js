@@ -187,30 +187,32 @@ const executeQuery = async (query, params, res) => {
 
 // POST /solved-tasks-count
 app.post("/api/solved-tasks-count", async (req, res) => {
-  await executeQuery(chartsQueries.solvedTaskCountQuery, [], res);
+  const { selected_area } = req.body;
+  await executeQuery(chartsQueries.solvedTaskCountQuery, [selected_area], res);
 });
 // POST /user-solved-tasks-count
 app.post("/api/user-solved-tasks-count", async (req, res) => {
-  const { username } = req.body;
-  await executeQuery(chartsQueries.userSolvedTaskCountQuery, [username], res);
+  const { username, selected_area } = req.body;
+  await executeQuery(chartsQueries.userSolvedTaskCountQuery, [username, selected_area], res);
 });
 // POST /avg-processing-time
 app.post("/api/avg-processing-time", async (req, res) => {
-  await executeQuery(chartsQueries.avgProcessingTimeQuery, [], res);
+  const { selected_area } = req.body;
+  await executeQuery(chartsQueries.avgProcessingTimeQuery, [selected_area], res);
 });
 
 // POST /user-avg-processing-time
 app.post("/api/user-avg-processing-time", async (req, res) => {
-  const { username } = req.body;
-  await executeQuery(chartsQueries.userAvgProcessingTimeQuery, [username], res);
+  const { username, selected_area } = req.body;
+  await executeQuery(chartsQueries.userAvgProcessingTimeQuery, [username, selected_area], res);
 });
 
 // POST /get-history-data
 app.post("/api/get-history-data", async (req, res) => {
-  const { username, limit } = req.body;
+  const { username, limit, selected_area } = req.body;
   await executeQuery(
     chartsQueries.historyLineChartQuery,
-    [username, limit],
+    [username, selected_area, limit],
     res
   );
 });
@@ -227,12 +229,14 @@ app.get("/api/total-users", async (req, res) => {
 
 // GET /difficulty-rating-easy
 app.get("/api/difficulty-rating-easy", async (req, res) => {
-  await getDifficultyRating(["Very easy", "Easy"], req.body.selected_area, res);
+  const selected_area = req.query.selected_area ?? null;
+  await getDifficultyRating(["Very easy", "Easy"], selected_area, res);
 });
 
 // GET /difficulty-rating-difficult
 app.get("/api/difficulty-rating-difficult", async (req, res) => {
-  await getDifficultyRating(["Very difficult", "Difficult"], req.body.selected_area, res);
+  const selected_area = req.query.selected_area ?? null;
+  await getDifficultyRating(["Very difficult", "Difficult"], selected_area, res);
 });
 
 // Funktion zur Abfrage der Schwierigkeitsbewertung
@@ -713,8 +717,17 @@ app.post("/api/update-status", async (req, res) => {
 const { getPgStructureQuery } = mainQueries;
 
 app.get("/api/getPostgreSQLStructure", async (req, res) => {
+  
   try {
-    const postgreSQL_query = () => pool.query(getPgStructureQuery);
+    const selected_area = req.query.selected_area ?? null;
+    const selected_schema = req.query.selected_schema ?? null;
+
+    const schema =
+      (selected_area === "testing_area")
+        ? (selected_schema ?? "students")
+        : "students";
+
+    const postgreSQL_query = () => pool.query(getPgStructureQuery, [schema]);
     let result = await executeQueryWithTimeout(postgreSQL_query, 50000);
 
     tables_set = new Set();
@@ -981,15 +994,25 @@ const executeQueryWithTimeout = (queryFunction, timeout) => {
 // Execute SQL queries
 // check if query is equal to the expected solution
 app.post("/api/execute-sql", async (req, res) => {
-  const { execQuery, taskNumber, taskAreaId, selected_area } = req.body;
+  const { execQuery, taskNumber, taskAreaId, selected_area, selectedSchema } = req.body;
+
+  const schema =
+    selected_area === "testing_area"
+    ? selectedSchema ?? "students"
+    : "students";
 
   try {
-    console.log("Executing SQL Query:", execQuery, "for taskNumber:", taskNumber, "taskAreaId:", taskAreaId, "selected_area:", selected_area);
     // Execute user's SQL query
     let userQueryResult = [{}];
+    let client;
+    let queryFeedback_new = "";
+
     if (!execQuery.includes("private") && !execQuery.includes("tool")) {
+      client = await pool.connect();
+      await client.query(`SET search_path TO ${schema}, public`);
+
       userQueryResult = await executeQueryWithTimeout(
-        () => pool.query(execQuery),
+        () => client.query(execQuery),
         50000
       );
       try {
@@ -1260,7 +1283,7 @@ app.post("/api/execute-sql", async (req, res) => {
           }
             
           const solution = await executeQueryWithTimeout(
-            () => pool.query(expectedSolutionResult.rows[0].solution_query),
+            () => client.query(expectedSolutionResult.rows[0].solution_query),
             50000
           );
           // Send both results to the client
@@ -1858,7 +1881,7 @@ const copySurvey = async (surveyId) => {
     await client.query('ROLLBACK');
     throw err;
   } finally {
-    client.release();
+    if (client) client.release();
   }
 };
 

@@ -31,7 +31,7 @@ const OptTimer = ({ taskNumber, area_id, username, onTimeUpdate, run, selected_a
         clearInterval(intervalRef.current);
       }
     };
-  }, [taskNumber, area_id, username]);
+  }, [taskNumber, area_id, username, selected_area]);
 
   useEffect(() => {
     if (isRunning) {

@@ -41,7 +41,7 @@ import {
 } from "@mui/material";
 import { checkAuth } from "../../api/loginApi";
 import CircularProgressC from "./circularProgressC";
-export default function CardContainer({ area }) {
+export default function CardContainer({ selectedArea }) {
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -59,7 +59,7 @@ export default function CardContainer({ area }) {
     endpoint: "",
     is_active: false,
     feedback_on: false,
-    selected_area: area,
+    selected_area: selectedArea,
   });
   const [openFormDialog, setOpenFormDialog] = useState(false);
 
@@ -75,14 +75,14 @@ export default function CardContainer({ area }) {
     verifyAuth();
 
     loadAssignments();
-  }, [area]);
+  }, [selectedArea]);
 
   const loadAssignments = async () => {
     try {
+      // fetch the assignments and filter them based on the selected area
       const response = await fetchAssignments();
-
-      // Filter the Assignment-Objekt based on the area
-      const filteredAssignments = response.filter(areaItem => areaItem.selected_area === area);
+      const courseArea = selectedArea;
+      const filteredAssignments = response.filter(areaItem => areaItem.selected_area === courseArea);
 
       setAssignments(filteredAssignments);
       console.log(filteredAssignments);
@@ -107,7 +107,7 @@ export default function CardContainer({ area }) {
       endpoint: "",
       is_active: false,
       feedback_on: false,
-      selected_area: area,
+      selected_area: selectedArea,
     });
     setOpenFormDialog(true);
   };
@@ -139,7 +139,7 @@ export default function CardContainer({ area }) {
       endpoint: "",
       is_active: false,
       feedback_on: false,
-      selected_area: area,
+      selected_area: selectedArea,
     });
   };
   const handleConfirmation = async () => {
@@ -205,7 +205,7 @@ export default function CardContainer({ area }) {
   };
 
   // Depending on the chosen area, the selection for the databases changes
-  const databankOptions = area === "sql-beginner"
+  const databankOptions = selectedArea === "sql-beginner"
     // SQL-Beginner -> only PostgreSQL
     ? [ { value: "PostgreSQL", label: "PostgreSQL" } ]
     // NoSQL-Beginner -> (all) PostgreSQL, Cassandra, Neo4J and MongoDB
@@ -240,7 +240,7 @@ export default function CardContainer({ area }) {
             >
               <CardActionArea
                 component={Link}
-                to={assignment.link + "?area=" + area}
+                to={assignment.link + "?area=" + selectedArea}
                 aria-label={`Open ${assignment.area_name}`}
               >
                 <Box

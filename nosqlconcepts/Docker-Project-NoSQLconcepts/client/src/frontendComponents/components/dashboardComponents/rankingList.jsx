@@ -13,16 +13,16 @@ import PersonIcon from "@mui/icons-material/Person";
 import { Card, CircularProgress } from "@mui/material";
 
 
-function RankingList() {
+function RankingList({ selectedArea }) {
     const [easyTask, setEasyTask] = useState(0);
       const [difficultTask, setDifficultTask] = useState(0);
       const [loading, setLoading] = useState(true);
       const [totalUsers, setTotalUsers] = useState(0);
     
-      const fetchData = async () => {
+      const fetchData = async (selectedArea) => {
         try {
-          const result = await fetchRankingData();
-          const result2 = await fetchTotalUsersData();
+          const result = await fetchRankingData(selectedArea);
+          const result2 = await fetchTotalUsersData(selectedArea);
     
           if (result) {
             const dataEasy = result.easy;
@@ -41,8 +41,8 @@ function RankingList() {
         }
       };
       useEffect(() => {
-        fetchData();
-      }, []);
+        fetchData(selectedArea);
+      }, [selectedArea]);
       if (loading) {
         return (
             <Box

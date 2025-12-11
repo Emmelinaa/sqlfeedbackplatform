@@ -11,6 +11,7 @@ FROM (
       SUM(CASE WHEN is_correct = 'Yes' THEN 1 ELSE 0 END) AS correct_tasks_count,
       SUM(CASE WHEN is_executable = 'Yes' THEN 1 ELSE 0 END) AS executable_tasks_count
   FROM tool.user_task_data
+  WHERE ($1::text IS NULL OR selected_area = $1::text)
   GROUP BY task_area_id, username
 ) AS subquery
 GROUP BY task_area_id;`,
@@ -22,12 +23,15 @@ SUM(CASE WHEN is_correct = 'Yes' THEN 1 ELSE 0 END) AS correct_tasks_count,
 SUM(CASE WHEN is_executable = 'Yes' THEN 1 ELSE 0 END) AS executable_tasks_count
 FROM tool.user_task_data
 WHERE username = $1
+AND ($2::text IS NULL OR selected_area = $2::text)
 GROUP BY task_area_id, username;`,
   avgProcessingTimeQuery: `SELECT 
 task_area_id,
 AVG(processing_time) AS avg_processing_time
 FROM 
 tool.user_task_data
+WHERE
+($1::text IS NULL OR selected_area = $1::text)
 GROUP BY 
 task_area_id
 ORDER BY 
@@ -40,6 +44,7 @@ FROM
 tool.user_task_data
 WHERE 
 username = $1
+AND ($2::text IS NULL OR selected_area = $2::text)
 GROUP BY 
 username, 
 task_area_id
@@ -82,12 +87,13 @@ FROM
 tool.query_history
 WHERE 
 username = $1
+AND ($2::text IS NULL OR selected_area = $2::text)
 GROUP BY 
 DATE(executed_at),
 username
 ORDER BY 
 x DESC, 
 username
-LIMIT $2;`,
+LIMIT $3;`,
 };
 module.exports = chartsQueries;

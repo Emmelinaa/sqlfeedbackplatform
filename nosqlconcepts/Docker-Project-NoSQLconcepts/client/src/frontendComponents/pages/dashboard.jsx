@@ -34,22 +34,22 @@ const NewDashboard = () => {
       <GreetingHeader username={username} />
 
       {/* Filter the dashboard content based on the selected course area */}
-      <CardContainer area={courseArea} />
+      <CardContainer selectedArea={courseArea} />
 
       <Box sx={{ flexGrow: 1, p:2 }}>
         <Grid container spacing={2}>
          
           <Grid item xs={12} md={6} title="Average Time to Solve a Task (in Minutes)">
-            <BarChartC isUser={true} isTimeChart={true} />
+            <BarChartC isUser={true} isTimeChart={true} selectedArea={courseArea} />
           </Grid>
           <Grid item xs={12} md={6} title="Task Overview">
-            <BarChartC isUser={true} isTimeChart={false} />
+            <BarChartC isUser={true} isTimeChart={false} selectedArea={courseArea} />
           </Grid>
           <Grid item xs={12} md={8} title="Query Execution Timeline">
-            <LineChartC />
+            <LineChartC  selectedArea={courseArea} />
           </Grid>
           <Grid item xs={12} md={4} title="Course Summary">
-            <RankingList />
+            <RankingList  selectedArea={courseArea} />
           </Grid>
           <Grid item xs={12} md={4} title="Evaluation Survey">
             <SurveyLink />

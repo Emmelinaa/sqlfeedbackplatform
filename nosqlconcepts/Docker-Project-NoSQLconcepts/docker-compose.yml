@@ -2,15 +2,6 @@ version: '3.8'
 
 services:
 
-  ollama:
-    image: ollama/ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    environment:
-      - OLLAMA_MODELS=llama
-
   postgres:
     image: postgres:15
     restart: always
@@ -116,7 +107,6 @@ services:
       - cassandra
       - mongo
       - neo4j
-      - ollama
     env_file:
       - .env
     volumes:
@@ -145,4 +135,3 @@ volumes:
   cassandradata:
   mongodata:
   neo4jdata:
-  ollama_data:

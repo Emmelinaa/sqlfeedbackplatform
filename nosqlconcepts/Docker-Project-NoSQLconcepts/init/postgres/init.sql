@@ -6,7 +6,8 @@
 --CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR(100));
 --INSERT INTO users (name) VALUES ('Alice'), ('Bob');
 
-
+CREATE SCHEMA IF NOT EXISTS students;
+SET search_path TO students, public;
 
 DROP TABLE IF EXISTS Students CASCADE;
 CREATE TABLE Students (

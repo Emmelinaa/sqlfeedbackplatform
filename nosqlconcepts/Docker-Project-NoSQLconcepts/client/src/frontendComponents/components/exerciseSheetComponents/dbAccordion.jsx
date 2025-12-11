@@ -10,7 +10,7 @@ import pgdataModel from "../../images/datamodel1-transp.png";
 import { fetchDbStructure } from "../../api/mainApi";
 import PgDatabaseSchema from "./pgSchema";
 
-function DbAccordion({ endpoint }) {
+function DbAccordion({ endpoint, selectedSchema, selectedArea }) {
   const [dataModel, setDataModel] = useState("");
   const [dbTable, setDbTable] = useState(null);
   const [dbendpoint, setDbEndpoint] = useState(null);
@@ -34,10 +34,13 @@ function DbAccordion({ endpoint }) {
       setDbEndpoint("/getNeo4JStructure");
       setDataModel(neoDataModel);
     }
-  }, []);
+  }, [endpoint, selectedSchema, selectedArea]);
   const fetchStructureData = async () => {
     try {
-      let response = await fetchDbStructure(dbendpoint);
+      let response = await fetchDbStructure(dbendpoint, {
+        selected_schema: selectedSchema,
+        selected_area: selectedArea,
+      });
       response = response.data;
       
       let newDbTable;
