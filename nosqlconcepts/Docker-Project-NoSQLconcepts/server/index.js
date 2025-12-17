@@ -15,7 +15,7 @@ const mainQueries = require("./queries/mainQueries");
 const adminQueries = require("./queries/adminQueries");
 const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
-//const axios = require('axios');
+const axios = require("axios");
 
 
 require("dotenv").config();
@@ -2330,32 +2330,56 @@ You are a helpful tutor. Provide clear, constructive feedback that helps the stu
 
 //################# LLM ######################################################
 app.post('/api/LLMfeedback', async (req, res) => {
-  const { questionData, studentAnswer, toolFeedback } = req.body;
+  console.log("-_-_-_-_-_-_-_-_ LLM _-_-_-_-_-_-_-_-")
+  const startTime = Date.now();
+  const { questionData, studentAnswer, correctAnswer, toolFeedback } = req.body;
 
   console.log("questionData: ", questionData);
   console.log("studentAnswer: ", studentAnswer);
+  console.log("correctAnswer: ", correctAnswer);
   console.log("toolFeedback: ", toolFeedback);
 
-  const prompt = `
-Question: ${questionData}
-Student Answer: "${studentAnswer}"
-SQL Feedback: "${toolFeedback}"
-
-You are a helpful tutor.
-Provide clear, constructive feedback that helps the student understand their mistake and how to improve their answer.
-The students have to find the correct query themself, so do provide only a hint in your output without a solution query.
-Also limit your output to 300 characters.
-`;
-
   try {
-    const response = await axios.post('http://localhost:11434/api/chat', {
-      model: 'mistral',
-      // model: 'llama2',
-      messages: [{ role: 'user', content: prompt }],
-      stream: false
+    const prompt = ` You are a helpful tutor.
+      Provide clear, constructive feedback that helps the student understand their mistake and how to improve their answer,
+      based on the following information:
+      The exersice questiondata: "${questionData}"
+      The correct sample answer: "${correctAnswer}"
+      The Student Answer: "${studentAnswer}"
+      The generated SQL Feedback: "${toolFeedback}"
+
+      The students have to find the correct query themself, so do provide only a hint in your output without a solution query.
+      Also limit your output to 200 characters.
+      
+      Format it strictly following exact structure, with no additional text, special characters, Markdown, Brackets or deviations
+      and be precise about which table etc is needed in order to understand their mistake and how to improve their answer: 
+      "(1) Learning tip: [learning tip text]",
+      and ensure the actual learning tip appears only after "Learning tip:".
+      If more than one learning tip is really necessary, seperate them with "\n" and increase the number in ( ) with 1,
+      exactly as the following structure:
+      "(1) Learning tip: [learning tip text]\n(2) Learning tip: [learning tip text]".
+
+      Ensure the learning tip(s) are clear, educational, and supportive, but do not stretch them unnaturally.
+      `;
+    const response = await axios.post("http://ollama:11434/api/generate", {
+      model: "gemma3:12b",
+      prompt,
+      stream: false,
     });
 
-    res.json({ feedback: response.data.message.content.trim() });
+    // Deconstruct llm response to learning tip(s)
+    const result = response.data.response || "No learning tips generated.";
+    const tips_count = (result.match(/:/g) || []).length;
+
+    const generationTime = Date.now() - startTime;
+    console.log(`Learning tip generation took ${generationTime} ms. This ${generationTime / 60000} minutes.`);
+    generationTimeMinutes = generationTime / 60000;
+
+    res.json({
+      learning_tips: result,
+      learning_tips_count: tips_count,
+      LLM_time: generationTimeMinutes + " minutes" });
+
   } catch (error) {
     console.error('Error from Ollama:', error.response?.data || error.message);
     res.status(500).json({ error: 'Failed to get feedback from Ollama' });

@@ -645,8 +645,8 @@ function stringifyDistance_new(distance, steps = null, path = null) {
                     newOrder += `\n\n-------------------: ${diffElement}`;
 
                 } else if (stringifyEdit(steps[i]).includes("Replace an asterisk with")) {
-                    diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));
-                    newOrder += `\n\nReplace an asterisk with ${diffElement}`;
+                    diffElement = diff(stringifyQuery(path[i+1]), stringifyQuery(path[i]));
+                    newOrder += `\n\nReplace an asterisk with all the column names in the table, which are:\n ${diffElement}`;
 
                 } else if (stringifyEdit(steps[i]).includes("Replace a number of expressions")) {
                     diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));

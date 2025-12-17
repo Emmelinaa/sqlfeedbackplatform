@@ -154,11 +154,12 @@ export const postTimerData = async (username, areaId, taskNumber, time) => {
 };
 
 // LLM API call
-export const fetchLLMFeedback = async (questionData, studentAnswer, toolFeedback) => {
+export const fetchLLMFeedback = async (questionData, studentAnswer, correctAnswer, toolFeedback) => {
   try {
     const response = await axios.post(`${API_URL}/LLMfeedback`, {
       questionData,
       studentAnswer,
+      correctAnswer,
       toolFeedback,
     });
 

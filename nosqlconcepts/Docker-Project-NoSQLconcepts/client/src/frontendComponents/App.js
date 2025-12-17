@@ -169,7 +169,7 @@ const AppRoutes = ({ assignments }) => {
     { path: "/conditions", element: <Conditions /> },
     /* { path: "/tutorial", element: <DatabaseTutorials /> }, */
     //lokal testen
-     { path: "/test", element: <TestC/> },
+     //{ path: "/test", element: <TestC/> },
   /*   { path: "/test-exercise", element: <ExerciseSheetC/> },
     { path: "/test-dashboard", element: <NewDashboard/> },
     { path: "/test-statistics", element: <NewStatistics/> },

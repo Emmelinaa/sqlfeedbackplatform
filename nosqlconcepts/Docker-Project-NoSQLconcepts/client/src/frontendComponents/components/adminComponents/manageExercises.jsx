@@ -148,7 +148,8 @@ const ManageExercises = () => {
         console.log("2");
         await deleteExercise(
           selectedExercise.statement_id,
-          selectedExercise.area_id
+          selectedExercise.area_id,
+          selectedExercise.selected_area,
         );
       } else if (actionType === "add") {
         console.log("3");

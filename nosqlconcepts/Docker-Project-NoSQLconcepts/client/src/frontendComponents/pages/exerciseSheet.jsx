@@ -115,7 +115,8 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
 
   const [llmError, setLlmError] = useState("");
   const [llmTip, setLlmTip] = useState("");
-  const [llmWorking, setLlmWorking] = useState(false);
+  const [showLLMTip, setShowLLMTip] = useState(false);
+  const [solutionSQL, setSolutionSQL] = useState("");
 
   const sqlSchema = "students";
 
@@ -278,6 +279,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   const executeQuery = async () => {
     sendDataToHistory();
     setQueryResult("");
+    setShowLLMTip(false);
     const execQuery = formData.query_text;
     let apiRoute = "";
     if (endpoint === "PostgreSQL") {
@@ -302,8 +304,9 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
         selected_area,
         sqlSchema,
       );
-      console.log("SQL query of the student: " + execQuery);
-      console.log("Correct SQL query:", response.data.solutionQuery);
+      console.log("SQL query of the student: ", execQuery);
+      console.log("Correct SQL query: ", response.data.solutionQuery);
+      setSolutionSQL(response.data.solutionQuery || "");
       console.log("queryFeedback_new: ", response.data.queryFeedback_new);
 
       setHasSolutionQuery(Boolean(response.data.solutionQuery));
@@ -551,8 +554,9 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
 
   // take the exersice description, editsteps
   const llmFeedback = async (feedbackOutput) => {
+    setShowLLMTip(true);
+    setLlmTip("Loading LLM learning tip...");
     console.log("LLM Feedback Function");
-    setLlmWorking(true);
 
     try {
       console.log("1");
@@ -565,22 +569,27 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
       console.log("questionData: ", questionData);
 
       // Student Answer Data
-      const studentAnswer = "Student Answer: " + formData.query_text;
+      const studentAnswer = formData.query_text;
       console.log("studentAnswer: ", studentAnswer);
+
+      // Correct Answer Data
+      const correctAnswer = solutionSQL;
+      console.log("correctAnswer: ", correctAnswer);
 
       // Tool Feedback Data
       const toolFeedback = feedbackOutput.map((e, i) => `${i + 1}. ${e.editStep}: ${e.solution}`).join('\n');
       console.log("Tool Feedback: ", toolFeedback);
 
       // API Call
-      const response = await fetchLLMFeedback(questionData, studentAnswer, toolFeedback);
+      const response = await fetchLLMFeedback(questionData, studentAnswer, correctAnswer, toolFeedback);
       console.log("Response: ", response);
+      setLlmError("");
+      setLlmTip(response.learning_tips);
 
     } catch (error) {
       console.log("error");
       console.error("Error:", error);
       setLlmError("Failed to get answer from LLM.");
-      setLlmWorking(false);
       setLlmTip("No LLM Tip available.");
     }
 
@@ -778,7 +787,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                                     </>
                                     }
                                 type="info"
-                              />
+                          />
 
                           <Box
                               sx={ {
@@ -848,23 +857,22 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                         </>
                       )}
                       <hr></hr>
-                      {/*TODO: if else ( ? : ) to check for an available LLM tip */}
-                      {feedback_on && (
+                      {feedback_on && endpoint === "PostgreSQL" && hasSolutionQuery && (
                         <>
                         <Typography variant="h6" gutterBottom>
                             LLM learning tip
                           </Typography>
-                          <Box
-                            sx={ {
-                              padding: "10px",
-                              borderRadius: "5px",
-                              border: "black",
-                            } }
-                          >
-                            {<p>An LLM learning tip [..]</p>}
-                          </Box>
+                          <ImportantMsg
+                                message={
+                                  <>
+                                    You can click on the button below to get a personalized learning tip based on the exersice description, your solution and the SQL feedback.
+                                    <br />
+                                    Note that this functionality is a work in progress and may take some time to respond.
+                                  </>
+                                  }
+                                type="info"
+                          />
                               
-                        {/*Available LLM learning tip*/}
                         <button
                           type="button"
                           id="test_area"
@@ -883,6 +891,18 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                         >
                           LLM learning tip
                         </button>
+                        <Box sx={{mt: 2}} />
+                        {showLLMTip && (
+                          <Box
+                              sx={ {
+                                padding: "10px",
+                                borderRadius: "5px",
+                                border: "1px solid #cac9c9ff",
+                                minHeight: 150,
+                                whiteSpace: "pre-wrap",
+                              } }
+                            >{llmTip}</Box>
+                        )}
 
                         {/*No available LLM learning tip.
                         <button
