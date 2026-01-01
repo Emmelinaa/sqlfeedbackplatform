@@ -313,7 +313,8 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
       setQueryFeedback_new(response.data.queryFeedback_new || "");
 
       const { feedbackOutput } = sqlDistanceHandling(response.data.queryFeedback_new || "");
-      const currentSQLPoints = calculatedPoints(maxPoints_SQL, feedbackOutput);
+      const isSQLOutputEqual = JSON.stringify(response.data.userQueryResult) === JSON.stringify(response.data.expectedResult);
+      const currentSQLPoints = isSQLOutputEqual ? maxPoints_SQL : calculatedPoints(maxPoints_SQL, feedbackOutput);
 
       const newSteps = feedbackOutput.map(item => item.editStep).filter(Boolean);
       const mergedSteps = [...collectedEditSteps, ...newSteps];
@@ -365,8 +366,10 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
       setError("");
     } catch (error) {
       setQueryFeedback_new("");
+      const backendMessage =
+        error.response?.data?.error || error.message || "Unexpected error";
       setError(
-        `Error: ${error.response.data.error}. Note: Please try again, if you think that this task is solvable with a query. You can also write a comment in the partial solution textfield, explaining why your solution is correct. In some cases this message occurs because there is no solution query (use the textfield for your solution then).`
+        `Error: ${backendMessage}. Note: Please try again, if you think that this task is solvable with a query. You can also write a comment in the partial solution textfield, explaining why your solution is correct. In some cases this message occurs because there is no solution query (use the textfield for your solution then).`
       );
       setQueryResult("");
       setFormData((prev) => ({
@@ -765,20 +768,35 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                         </Box>
                       </Box>
 
-                      {feedback_on && endpoint === "PostgreSQL" && hasSolutionQuery &&(
+                      {feedback_on && endpoint === "PostgreSQL" && queryResult && (
                         <>
                           <Typography variant="h6" gutterBottom>
                             See Your SQL Feedback
                           </Typography>
-                          {hasSolutionQuery && (
+                          {maxPoints_SQL && (
                             <Typography variant="h7" gutterBottom>
-                              There are {maxPoints_SQL} points and you received {calculatedPoints(maxPoints_SQL, feedbackOutput)} points.
+                              {feedback.includes("Your query output is equal to the expected output")
+                                ? `There are ${maxPoints_SQL} points and you received ${maxPoints_SQL} points.`
+                                : `There are ${maxPoints_SQL} points and you received ${calculatedPoints(maxPoints_SQL, feedbackOutput)} points.`
+                              }
                             </Typography>
                           )}
+                          {feedback.includes("Your query output is equal to the expected output") && (
+                                <ImportantMsg
+                                  message={
+                                    <>
+                                      Your query produces the correct output table! Full points are awarded.
+                                      <br />
+                                      Note that structurally different queries with the same output may still result in edit steps with (not weighted) cost
+                                      when compared to the expected solution.
+                                      </>
+                                  }
+                                  type="success"
+                                />
+                              )}
                           <ImportantMsg
                                 message={
                                   <>
-                                    Your output does not match the expected output (if there is an expected output).
                                     You can see an overview of the errors below and click any item to view more details.
                                     <br />
                                     If an error has 'Cost: 0' then it's a mathematical or logical transformation that does not change the meaning of the SQL query.
@@ -857,7 +875,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
                         </>
                       )}
                       <hr></hr>
-                      {feedback_on && endpoint === "PostgreSQL" && hasSolutionQuery && (
+                      {feedback_on && endpoint === "PostgreSQL" && queryResult && (
                         <>
                         <Typography variant="h6" gutterBottom>
                             LLM learning tip

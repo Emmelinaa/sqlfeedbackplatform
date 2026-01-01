@@ -22,6 +22,8 @@ class SelectElement extends hashable_1.Hashable {
         if (!((this.expression === other.expression) ||
             (this.expression && this.expression.equals(other.expression, thisQuery, otherQuery))))
             return false;
+        if (this.as !== other.as)
+            return false;
         return true;
     }
     setExpression(expression) {

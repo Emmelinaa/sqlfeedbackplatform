@@ -454,7 +454,7 @@ const ManageExercises = () => {
             onChange={handleFormInputChange}
             style={{ marginBottom: "10px" }}
           />
-          {exerciseEndpoint && (
+          {selected_area_selection === "sql-beginner" && (
             <TextField
             fullWidth
             variant="outlined"

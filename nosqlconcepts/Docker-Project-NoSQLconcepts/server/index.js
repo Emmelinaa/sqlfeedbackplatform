@@ -586,10 +586,10 @@ app.post("/api/update-exercises", async (req, res) => {
       formValues.maxtime,
       formValues.hint,
       formValues.tasknumber,
+      formValues.maxsql_points,
       formValues.statement_id,
       formValues.area_id,
       formValues.selected_area,
-      formValues.maxsql_points,
     ],
     res
   );
@@ -1064,11 +1064,11 @@ app.post("/api/execute-sql", async (req, res) => {
           removeSelectElement:1
           addSelectAsterisk:1
           removeSelectAsterisk:1
-          setSelectAsteriskTable:10
+          setSelectAsteriskTable:1
           unsetSelectAsteriskTable:1
           addSelectColumnReference:1
           removeSelectColumnReference:1
-          setSelectColumnReferenceTable:10
+          setSelectColumnReferenceTable:1
           unsetSelectColumnReferenceTable:1
           addSelectLiteral:1
           removeSelectLiteral:1
@@ -1081,14 +1081,14 @@ app.post("/api/execute-sql", async (req, res) => {
           addSelectBinaryExpression:1
           removeSelectBinaryExpression:1
           setSelectAlias:2
-          unsetSelectAlias:0
+          unsetSelectAlias:1
           addFromElement:2
           removeFromElement:2
           setTableJoinType:1
           unsetTableJoinType:1
           addFromColumnReference:1
           removeFromColumnReference:1
-          setFromColumnReferenceTable:10
+          setFromColumnReferenceTable:1
           unsetFromColumnReferenceTable:1
           addFromLiteral:1
           removeFromLiteral:1
@@ -1096,11 +1096,11 @@ app.post("/api/execute-sql", async (req, res) => {
           removeFromNot:1
           addFromBinaryExpression:1
           removeFromBinaryExpression:1
-          setFromAlias:10
+          setFromAlias:1
           unsetFromAlias:1
           addWhereColumnReference:1
           removeWhereColumnReference:1
-          setWhereColumnReferenceTable:10
+          setWhereColumnReferenceTable:1
           unsetWhereColumnReferenceTable:1
           addWhereLiteral:1
           removeWhereLiteral:1
@@ -1112,7 +1112,7 @@ app.post("/api/execute-sql", async (req, res) => {
           removeGroupbyElement:2
           addGroupbyColumnReference:1
           removeGroupbyColumnReference:1
-          setGroupbyColumnReferenceTable:10
+          setGroupbyColumnReferenceTable:1
           unsetGroupbyColumnReferenceTable:1
           addGroupbyLiteral:1
           removeGroupbyLiteral:1
@@ -1122,7 +1122,7 @@ app.post("/api/execute-sql", async (req, res) => {
           removeGroupbyBinaryExpression:1
           addHavingColumnReference:1
           removeHavingColumnReference:1
-          setHavingColumnReferenceTable:10
+          setHavingColumnReferenceTable:1
           unsetHavingColumnReferenceTable:1
           addHavingLiteral:1
           removeHavingLiteral:1
@@ -1140,7 +1140,7 @@ app.post("/api/execute-sql", async (req, res) => {
           unsetOrderbyDescending:1
           addOrderbyColumnReference:1
           removeOrderbyColumnReference:1
-          setOrderbyColumnReferenceTable:10
+          setOrderbyColumnReferenceTable:1
           unsetOrderbyColumnReferenceTable:1
           addOrderbyLiteral:1
           removeOrderbyLiteral:1

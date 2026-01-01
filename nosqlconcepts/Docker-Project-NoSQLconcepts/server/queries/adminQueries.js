@@ -1,9 +1,9 @@
 const adminQueries = {
     getUsersQuery: `SELECT DISTINCT username FROM tool.user_task_data`,
-    getAllExercisesQuery: `SELECT s.statement_id, s.statement_text, s.area_id, s.selected_area, a.area_name, s.topic, s.subtasknumber, s.maxtime, s.hint, s.solution_query  FROM tool.task_statements s, tool.task_areas a where s.area_id = a.area_id and s.selected_area = a.selected_area order by area_id, statement_id`,
+    getAllExercisesQuery: `SELECT s.statement_id, s.statement_text, s.area_id, s.selected_area, a.area_name, s.topic, s.subtasknumber, s.maxtime, s.hint, s.solution_query, s.maxsql_points  FROM tool.task_statements s, tool.task_areas a where s.area_id = a.area_id and s.selected_area = a.selected_area order by area_id, statement_id`,
     deleteExerciseQuery: `DELETE FROM tool.task_statements WHERE statement_id = $1 AND area_id = $2 AND selected_area = $3`,
     addExerciseQuery: `INSERT INTO tool.task_statements (statement_id, area_id, statement_text, solution_query, topic, subtasknumber, maxtime, hint, tasknumber, selected_area, maxsql_points) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-    updateExerciseQuery: `UPDATE tool.task_statements SET statement_text = $1, solution_query = $2, topic = $3, subtasknumber = $4, maxtime = $5, hint = $6, tasknumber = $7 WHERE statement_id = $8 AND area_id = $9 AND selected_area = $10 AND maxsql_points = $11`,
+    updateExerciseQuery: `UPDATE tool.task_statements SET statement_text = $1, solution_query = $2, topic = $3, subtasknumber = $4, maxtime = $5, hint = $6, tasknumber = $7, maxsql_points = $8 WHERE statement_id = $9 AND area_id = $10 AND selected_area = $11`,
     deleteAllExerciseQuery: `DELETE FROM tool.task_statements WHERE area_id = $1 AND selected_area = $2`,
     // If an assignment (area_id, selected_area) already exists, replace it
     addAssignmentQuery: `INSERT INTO tool.task_areas (area_id, area_name, descr, link, endpoint, is_active, feedback_on, selected_area) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)

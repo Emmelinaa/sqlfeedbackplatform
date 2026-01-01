@@ -1348,7 +1348,7 @@ function StatisticsC() {
               /* backgroundColor={colors.primary[400]} */
               sx={cardStyle}
             >
-              <Typography>User Error Horizontal-Edit Types for Selected Task:</Typography>
+              <Typography>User Error Horizontal-Edit Types for Selected Area:</Typography>
               <Typography>
                 Horizontal-Edit(s): {horizontalCount} {" "}
               </Typography>
@@ -1405,7 +1405,7 @@ function StatisticsC() {
               /* backgroundColor={colors.primary[400]} */
               sx={cardStyle}
             >
-              <Typography>User Error Shortcut-Edit Types for Selected Task:</Typography>
+              <Typography>User Error Shortcut-Edit Types for Selected Area:</Typography>
               <Typography>
                 Shortcut-Edit Input(s): {shortcutCount} {" "}
               </Typography>

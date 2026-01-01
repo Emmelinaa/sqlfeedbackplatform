@@ -25,6 +25,7 @@
     "mongoose": "^5.13.20",
     "morgan": "^1.10.0",
     "neo4j-driver": "^5.10.0",
+    "node-sql-parser": "^5.3.13",
     "nodemon": "^2.0.22",
     "pg": "^8.11.1"
   }
