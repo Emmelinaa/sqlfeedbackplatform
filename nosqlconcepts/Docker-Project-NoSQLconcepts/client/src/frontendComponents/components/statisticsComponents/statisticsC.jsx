@@ -765,7 +765,7 @@ function StatisticsC() {
     
 
     // ------ Max SQL Points and Average for selected SQL Assignment ------
-    if (!area_id) { setAssignmentMaxPoints(null); return; }
+    if (!selectedAreaId) { setAssignmentMaxPoints(null); return; }
 
     const filteredAreaD = taskData.filter(
       (item) =>
@@ -832,12 +832,12 @@ function StatisticsC() {
 
       {isSQL && (
         <>
-        <ImportantMsg
-            message={`The maximum points for this assignment are: ${assignmentMaxPoints ?? "-"} and on the average the received points are: ${assignment_AverageReceivedPoints ?? "-"}`}
+        <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "center" }}>
+          <ImportantMsg
+            message={`The maximum points for this assignment are: ${assignmentMaxPoints ?? "-"} and on the average the received points are: ${assignment_averageReceivedPoints ?? "-"}`}
             type="info"
           />
-          
-        <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "center" }}>
+
           <ImportantMsg
             message={`The maximum points for this task are: ${exerciseMaxPoints ?? "-"} and on the average the received points are: ${averageReceivedPoints ?? "-"}`}
             type="info"
