@@ -256,6 +256,8 @@ function StatisticsC() {
 
   const [exerciseMaxPoints, setExerciseMaxPoints] = useState(null);
   const [averageReceivedPoints, setAverageReceivedPoints] = useState(null);
+  const [assignmentMaxPoints, setAssignmentMaxPoints] = useState(null);
+  const [assignment_averageReceivedPoints, set_assignment_AverageReceivedPoints] = useState(null)
 
   const isTestingArea = splitSelected_area === "testing_area";
   const isSQL = splitSelected_area === "sql-beginner";
@@ -537,7 +539,7 @@ function StatisticsC() {
 
   // Data for charts (shortcutEdits)
   const shortCutTypes = [
-    "Tautology\nlaw", "Double\nnegation\nlaw", "Distributive\nlaw", "De\nMorgan\nlaw", "Absorption\nlaw",
+    "Tautology\nlaw", "Double\nneg.\nlaw", "Distr.\nlaw", "De\nMorgan", "Absorp.\nlaw",
     "Move", "Replace"
   ];
   const getShortCutVariants = [
@@ -728,9 +730,12 @@ function StatisticsC() {
       String(item.selected_area).trim() === String(splitSelected_area).trim()
   );
 
-  // Max SQL Points and Average received Points for selected SQL Exercise
+
+  // Max SQL Points and Average received Points for selected SQL Exercise and Assignment
   useEffect(() => {
     if (isSQL) {
+
+      // ------ Max SQL Points and Average received Points for selected SQL Exercise ------
       if (!selectedStatementId) { setExerciseMaxPoints(null); return; }
 
       const filteredTD = taskData.filter(
@@ -757,6 +762,7 @@ function StatisticsC() {
           : null;
       setAverageReceivedPoints(avgPoints);
       console.log("Avg SQL points (all users):", avgPoints);
+    
     }
   }, [filteredData]);
 
@@ -775,7 +781,7 @@ function StatisticsC() {
         >
           {areaData.map((item) => (
             <MenuItem key={item.area_id + "-" + item.selected_area} value={item.area_id + "-" + item.selected_area}>
-              {item.area_name} - Bereich: {item.selected_area}
+              {item.area_name} - Course Area: {item.selected_area}
             </MenuItem>
           ))}
         </Select>
@@ -796,12 +802,19 @@ function StatisticsC() {
       </Grid>
 
       {isSQL && (
+        <>
+        <ImportantMsg
+            message={`The maximum points for this assignment are: ${assignmentMaxPoints ?? "-"} and on the average the received points are: ${assignment_AverageReceivedPoints ?? "-"}`}
+            type="info"
+          />
+          
         <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "center" }}>
           <ImportantMsg
             message={`The maximum points for this task are: ${exerciseMaxPoints ?? "-"} and on the average the received points are: ${averageReceivedPoints ?? "-"}`}
             type="info"
           />
         </Grid>
+        </>
       )}
 
       {/* TOP 1/3 - Needed Time & Difficulty */}
