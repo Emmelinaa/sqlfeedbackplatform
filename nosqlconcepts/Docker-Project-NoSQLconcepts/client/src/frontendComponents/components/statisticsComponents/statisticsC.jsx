@@ -763,6 +763,35 @@ function StatisticsC() {
       setAverageReceivedPoints(avgPoints);
       console.log("Avg SQL points (all users):", avgPoints);
     
+
+    // ------ Max SQL Points and Average for selected SQL Assignment ------
+    if (!area_id) { setAssignmentMaxPoints(null); return; }
+
+    const filteredAreaD = taskData.filter(
+      (item) =>
+        String(item.area_id).trim() === String(selectedAreaId).trim() &&
+        String(item.selected_area).trim() === String(splitSelected_area).trim()
+    );
+    const maxSQLPointsAreaD = filteredAreaD[0]?.maxsql_points ?? null;
+    setAssignmentMaxPoints(maxSQLPointsAreaD);
+    console.log("Max Points (assignment):", maxSQLPointsAreaD);
+
+    const filteredDNotTest_Assignment = filteredAreaData.filter(
+        (item) =>
+          item.selected_area !== "testing_area"
+      );
+
+      const allSqlPoints_Assignment = filteredDNotTest_Assignment.flatMap((item) =>
+        Array.isArray(item.sql_point_list) ? item.sql_point_list : []
+      );
+
+    const avgAssignmentPoints =
+        allSqlPoints_Assignment.length
+          ? (allSqlPoints_Assignment.reduce((s, n) => s + Number(n || 0), 0) / allSqlPoints_Assignment.length).toFixed(2)
+          : null;
+      set_assignment_AverageReceivedPoints(avgAssignmentPoints);
+      console.log("Avg SQL points for the whole assignment (all users):", avgAssignmentPoints);
+
     }
   }, [filteredData]);
 
