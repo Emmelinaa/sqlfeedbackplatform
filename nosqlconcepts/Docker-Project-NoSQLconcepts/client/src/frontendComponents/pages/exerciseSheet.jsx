@@ -303,6 +303,7 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
         area_id,
         selected_area,
         sqlSchema,
+        maxPoints_SQL,
       );
       console.log("SQL query of the student: ", execQuery);
       console.log("Correct SQL query: ", response.data.solutionQuery);

@@ -994,7 +994,7 @@ const executeQueryWithTimeout = (queryFunction, timeout) => {
 // Execute SQL queries
 // check if query is equal to the expected solution
 app.post("/api/execute-sql", async (req, res) => {
-  const { execQuery, taskNumber, taskAreaId, selected_area, selectedSchema } = req.body;
+  const { execQuery, taskNumber, taskAreaId, selected_area, selectedSchema, maxPoints_SQL } = req.body;
 
   const schema =
     selected_area === "testing_area"
@@ -1258,9 +1258,18 @@ app.post("/api/execute-sql", async (req, res) => {
           try {
             console.log(`calculating...`);
             console.time();
-            [distance, steps, path] = await
+            // Distance: sum of edit step costs
+            const maxDistance = Number(maxPoints_SQL);
+            console.log("maxDistance: ", maxDistance);
+
+            if (maxDistance === 0 || maxDistance === null) {
+              [distance, steps, path] = await
               sqlQueryDistance.parseAndCalculateDistance(
                 expectedSolutionResult.rows[0].solution_query, execQuery, schema, config);
+            [distance, steps, path] = await
+              sqlQueryDistance.parseAndCalculateDistance(
+                expectedSolutionResult.rows[0].solution_query, execQuery, schema, config, maxDistance);
+            }
             console.timeEnd();
 
             queryFeedback = sqlQueryDistance.stringifyDistance(distance, steps, path);
