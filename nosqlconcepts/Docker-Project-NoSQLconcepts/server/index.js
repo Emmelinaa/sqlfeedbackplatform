@@ -1266,6 +1266,7 @@ app.post("/api/execute-sql", async (req, res) => {
               [distance, steps, path] = await
               sqlQueryDistance.parseAndCalculateDistance(
                 expectedSolutionResult.rows[0].solution_query, execQuery, schema, config);
+            } else {
             [distance, steps, path] = await
               sqlQueryDistance.parseAndCalculateDistance(
                 expectedSolutionResult.rows[0].solution_query, execQuery, schema, config, maxDistance);

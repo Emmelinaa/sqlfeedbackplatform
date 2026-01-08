@@ -524,6 +524,8 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
   }
 
   function calculatedPoints(maxPoints_SQL, feedbackOutput) {
+    // The scale factor can be adjusted to change the weight of the dedcutions
+    const scaleFactor = 1;
     let minusPoints = 0;
     feedbackOutput.forEach( a => {
       const match = a.editStep.match(/Cost\s*([\d.,]+):/i);
@@ -531,7 +533,8 @@ function ExerciseSheetC({ area_id, area_name, endpoint, feedback_on, selected_ar
         minusPoints += parseFloat(match[1].replace(",", "."));
       }
     });
-    return Math.max(0, parseFloat(maxPoints_SQL) - parseFloat(minusPoints));
+    const unscaledPoints = Math.max(0, parseFloat(maxPoints_SQL) - (parseFloat(minusPoints) * scaleFactor));
+    return unscaledPoints;
   }
 
   const isCorrectOptions = ["I don't know", "Yes", "No"];
