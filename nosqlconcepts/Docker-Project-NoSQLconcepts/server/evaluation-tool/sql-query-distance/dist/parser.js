@@ -646,19 +646,19 @@ function stringifyDistance_new(distance, steps = null, path = null) {
                 
                 } else if (stringifyEdit(steps[i]).includes("double negation law")) {
                     diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));
-                    newOrder += `\n\n-------------------: '${diffElement}'`;
+                    newOrder += `\n\nThe double negation '${diffElement}' can be simplified.`;
                 
                 } else if (stringifyEdit(steps[i]).includes("distributive law")) {
                     diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));
-                    newOrder += `\n\n-------------------: '${diffElement}'`;
+                    newOrder += `\n\nRewritte '${diffElement}' using the distributive law.`;
 
                 } else if (stringifyEdit(steps[i]).includes("De Morgan's law")) {
                     diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));
-                    newOrder += `\n\n-------------------: '$diffElement}'`;
+                    newOrder += `\n\nApply De Morgan's law to: '${diffElement}'`;
                 
                 } else if (stringifyEdit(steps[i]).includes("absorption law")) {
                     diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));
-                    newOrder += `\n\n-------------------: '${diffElement}'`;
+                    newOrder += `\n\n'${diffElement}' contains a redundant part. Use the absorption law to reduce it.`;
 
                 } else if (stringifyEdit(steps[i]).includes("Move the join-condition")) {
                     diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));
@@ -666,7 +666,7 @@ function stringifyDistance_new(distance, steps = null, path = null) {
                 
                 } else if (stringifyEdit(steps[i]).includes("Move expression from")) {
                     diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));
-                    newOrder += `\n\n-------------------: '${diffElement}'`;
+                    newOrder += `\n\nMove '${diffElement}' from the WHERE-clause into the join-condition of an INNER JOIN.`;
 
                 } else if (stringifyEdit(steps[i]).includes("Replace an asterisk with")) {
                     diffElement = diff(stringifyQuery(path[i+1]), stringifyQuery(path[i]));
