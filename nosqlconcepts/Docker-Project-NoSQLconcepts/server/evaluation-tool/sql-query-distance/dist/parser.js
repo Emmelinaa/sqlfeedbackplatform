@@ -650,7 +650,7 @@ function stringifyDistance_new(distance, steps = null, path = null) {
                 
                 } else if (stringifyEdit(steps[i]).includes("distributive law")) {
                     diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));
-                    newOrder += `\n\nRewritte '${diffElement}' using the distributive law.`;
+                    newOrder += `\n\nRewrite '${diffElement}' using the distributive law.`;
 
                 } else if (stringifyEdit(steps[i]).includes("De Morgan's law")) {
                     diffElement = diff(stringifyQuery(path[i]), stringifyQuery(path[i+1]));
