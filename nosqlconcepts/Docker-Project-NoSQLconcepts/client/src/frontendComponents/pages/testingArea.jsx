@@ -363,11 +363,11 @@ function TestingAreaC() {
 
     const handleRadioChange = (selected_dataset) => {
         setPendingDataset(selected_dataset.target.value);
-        setDatasetChoosen(selected_dataset.target.value);
-        setSelectedSchema(selected_dataset.target.value.toLowerCase());
+        //setDatasetChoosen(selected_dataset.target.value);
+        //setSelectedSchema(selected_dataset.target.value.toLowerCase());
     };
     const handleDatasetChange = () => {
-        setDatasetChoosen(pendingDataset);
+        // setDatasetChoosen(pendingDataset);
         const mapped = pendingDataset && pendingDataset.toLowerCase() === "hospital" ? "hospital" : "students";
         setDatasetChoosen(pendingDataset);
         setSelectedSchema(mapped);
@@ -494,7 +494,7 @@ function TestingAreaC() {
                         name="endpoint"
                         row
                         id="selected-database"
-                        value={datasetChoosen}
+                        value={pendingDataset}
                         onChange={handleRadioChange}
                         aria-labelledby="Radiogroup to select the dataset"
                     >

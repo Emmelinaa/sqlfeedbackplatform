@@ -420,6 +420,108 @@ function StatisticsC() {
     downloadCSV(csvData, "area_difficulty_data.csv");
   };
 
+  // CSV download function for Task 'Horizontal' Data
+  const downloadHorizontalDataTask = () => {
+    const topRow = ["Type", " Variant", " Frequency"];
+    const horizontal_rows = [];
+    const hori_types = horizontalTypes.map( e => e.replace(/\n/g, " ").trim() );
+
+    hori_types.forEach( (hori_variant, typeIndex) => {
+
+      horizontalSeries_Task.forEach( e => {
+        const hori_frequency = e.data[typeIndex] || 0;
+        if (hori_frequency === 0) return;
+
+        horizontal_rows.push([
+        hori_variant,
+        " " + e.label.replace(/\n/g, " ").trim(),
+        " " + hori_frequency
+        ]);
+        
+      });
+    });
+
+    const csvData = [topRow, ...horizontal_rows];
+    downloadCSV(csvData, "horizontal_data_task.csv");
+  };
+
+  // CSV download function for Area 'Horizontal' Data
+  const downloadHorizontalDataArea = () => {
+    const topRow = ["Type", " Variant", " Frequency"];
+    const horizontal_rows = [];
+    const hori_types = horizontalTypes.map( e => e.replace(/\n/g, " ").trim() );
+
+    hori_types.forEach( (hori_variant, typeIndex) => {
+
+      horizontalSeries.forEach( e => {
+        const hori_frequency = e.data[typeIndex] || 0;
+        if (hori_frequency === 0) return;
+
+        horizontal_rows.push([
+        hori_variant,
+        " " + e.label.replace(/\n/g, " ").trim(),
+        " " + hori_frequency
+        ]);
+        
+      });
+    });
+
+    const csvData = [topRow, ...horizontal_rows];
+    downloadCSV(csvData, "horizontal_data_area.csv");
+  };
+  
+  // -----------------------------------------------
+
+  // CSV download function for Task 'ShortCut' Data
+  const downloadShortCutDataTask = () => {
+    const topRow = ["Type", " Variant", " Frequency"];
+    const shortCut_rows = [];
+    const short_types = shortCutTypes.map( e => e.replace(/\n/g, " ").trim() );
+
+    short_types.forEach( (short_variant, typeIndex) => {
+
+      shortCutSeries_Task.forEach( e => {
+        const short_frequency = e.data[typeIndex] || 0;
+        if (short_frequency === 0) return;
+
+        shortCut_rows.push([
+        short_variant,
+        " " + e.label.replace(/\n/g, " ").trim(),
+        " " + short_frequency
+        ]);
+        
+      });
+    });
+
+    const csvData = [topRow, ...shortCut_rows];
+    downloadCSV(csvData, "shortcut_data_task.csv");
+  };
+
+  // CSV download function for Area 'ShortCut' Data
+  const downloadShortCutDataArea = () => {
+    const topRow = ["Type", " Variant", " Frequency"];
+    const shortCut_rows = [];
+    const short_types = shortCutTypes.map( e => e.replace(/\n/g, " ").trim() );
+
+    short_types.forEach( (short_variant, typeIndex) => {
+
+      shortCutSeries.forEach( e => {
+        const short_frequency = e.data[typeIndex] || 0;
+        if (short_frequency === 0) return;
+
+        shortCut_rows.push([
+        short_variant,
+        " " + e.label.replace(/\n/g, " ").trim(),
+        " " + short_frequency
+        ]);
+        
+      });
+    });
+
+    const csvData = [topRow, ...shortCut_rows];
+    downloadCSV(csvData, "shortcut_data_area.csv");
+  };
+
   /*In this part the filtered arrays are defined, all 4 Postgresql tables are available as arrays and are filtered here accordingly,
    e.g. to save only the time values in an array */
 
@@ -708,7 +810,8 @@ function StatisticsC() {
     (item) => item.difficulty_level
   );
   const filteredUserAreaData = filteredUserData.filter(
-    (item) => item.task_area_id === selectedAreaId
+    (item) => String(item.task_area_id).trim() === String(selectedAreaId).trim() &&
+              String(item.selected_area).trim() === String(splitSelected_area).trim()
   );
   const UserAreadifdata = filteredUserAreaData.map(
     (item) => item.difficulty_level
@@ -1004,13 +1107,13 @@ function StatisticsC() {
                 onClick={() =>
                   downloadCSV(
                     [
-                      ["Type", "Frequency"],
+                      ["Variant", "Frequency"],
                       ...excessES_TaskCategories.map((categoryName, i) => [
-                        categoryName,
+                        categoryName.replace(/\n/g, " ").trim(),
                         excessES_TaskCounts[i],
                       ]),
                     ],
-                    "excess_editsteps.csv"
+                    "excess_data_task.csv"
                   )
                 }
               >
@@ -1057,7 +1160,18 @@ function StatisticsC() {
                 Error Missing Types
               </Typography>
               <Button
-                onClick={downloadAreaData}
+                onClick={() =>
+                  downloadCSV(
+                    [
+                      ["Variant", "Frequency"],
+                      ...missingES_TaskCategories.map((categoryName, i) => [
+                        categoryName.replace(/\n/g, " ").trim(),
+                        missingES_TaskCounts[i],
+                      ]),
+                    ],
+                    "missing_data_task.csv"
+                  )
+                }
               >
                 Download CSV <DownloadIcon></DownloadIcon>
               </Button>
@@ -1109,18 +1223,7 @@ function StatisticsC() {
                 Error horizontalEdit Types
               </Typography>
               <Button
-                onClick={() =>
-                  downloadCSV(
-                    [
-                      ["Type", "Frequency"],
-                      ...excessES_TaskCategories.map((categoryName, i) => [
-                        categoryName,
-                        excessES_TaskCounts[i],
-                      ]),
-                    ],
-                    "excess_editsteps.csv"
-                  )
-                }
+                onClick={downloadHorizontalDataTask}
               >
                 Download CSV <DownloadIcon></DownloadIcon>
               </Button>
@@ -1166,7 +1269,7 @@ function StatisticsC() {
                 Error Shortcut-Edit Types
               </Typography>
               <Button
-                onClick={downloadAreaData}
+                onClick={downloadShortCutDataTask}
               >
                 Download CSV <DownloadIcon></DownloadIcon>
               </Button>
@@ -1317,13 +1420,13 @@ function StatisticsC() {
                 onClick={() =>
                   downloadCSV(
                     [
-                      ["Type", "Frequency"],
+                      ["Variant", "Frequency"],
                       ...excessEditStepCategories.map((categoryName, i) => [
-                        categoryName,
+                        categoryName.replace(/\n/g, " ").trim(),
                         excessEditStepCounts[i],
                       ]),
                     ],
-                    "excess_editsteps.csv"
+                    "excess_data_area.csv"
                   )
                 }
               >
@@ -1370,7 +1473,18 @@ function StatisticsC() {
                 Error Missing Types
               </Typography>
               <Button
-                onClick={downloadAreaData}
+                onClick={() =>
+                  downloadCSV(
+                    [
+                      ["Variant", "Frequency"],
+                      ...missingEditStepCategories.map((categoryName, i) => [
+                        categoryName.replace(/\n/g, " ").trim(),
+                        missingEditStepCounts[i],
+                      ]),
+                    ],
+                    "missing_data_area.csv"
+                  )
+                }
               >
                 Download CSV <DownloadIcon></DownloadIcon>
               </Button>
@@ -1423,18 +1537,7 @@ function StatisticsC() {
                 Error horizontalEdit Types
               </Typography>
               <Button
-                onClick={() =>
-                  downloadCSV(
-                    [
-                      ["Type", "Frequency"],
-                      ...excessES_TaskCategories.map((categoryName, i) => [
-                        categoryName,
-                        excessES_TaskCounts[i],
-                      ]),
-                    ],
-                    "excess_editsteps.csv"
-                  )
-                }
+                onClick = {downloadHorizontalDataArea}
               >
                 Download CSV <DownloadIcon></DownloadIcon>
               </Button>
@@ -1480,7 +1583,7 @@ function StatisticsC() {
                 Error Shortcut-Edit Types
               </Typography>
               <Button
-                onClick={downloadAreaData}
+                onClick={downloadShortCutDataArea}
               >
                 Download CSV <DownloadIcon></DownloadIcon>
               </Button>
