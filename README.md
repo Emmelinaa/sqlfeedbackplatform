@@ -1,21 +1,68 @@
 # SQL Feedback platform
 
-### **English:**
-## Learning platform for the automated analysis and evaluation of SQL queries
+## Learning platform for the automated analysis and evaluation of SQL queries.
 
-### **German:**
-## Lernplattform zur automatisierten Analyse und Bewertung von SQL-Abfragen.
+### The goal of this project is to extend a learning platform with an evalution tool to provide individualized feedback and an LLM component to generate corresponding LLM-based learning tips.
 
-1) Wechseln Sie in die Ordner /client/ und /server/ und führen Sie jeweils aus:
-npm install
+## What to do before
 
-    _Hinweis:_ /Docker-Project-NoSQLconcepts/client/
+1) Download Git
+2) Download Docker
+3) Install NPM
 
-2) Wechseln Sie in die Ordner /server/evaluation-tool/sql-query-distance und führen Sie aus:
-npm install
+## How to clone the project
 
-    _Hinweis:_ /Docker-Project-NoSQLconcepts/server/evaluation-tool/sql-query-distance/
+1) Create a target folder
 
-3) Wechseln Sie in die Ordner
-/Docker-Project-NoSQLconcepts/ und führen Sie aus:
-docker-compose up --build
+2) Navigate to your folder
+
+3) Clone the repository:
+    git clone
+    https://github.com/Emmelinaa/sqlfeedbackplatform.git
+
+
+## Install the packages
+
+1) Navigate to /client/ and /server/ and run:
+
+    npm install
+
+    **Note:** Navigate to cd /Docker-Project-NoSQLconcepts/client/ and cd /Docker-Project-NoSQLconcepts/server/
+
+
+2) Navigate to /server/evaluation-tool/sql-query-distance/ folder and run:
+
+    npm install
+
+    **Note:** Navigate to cd /Docker-Project-NoSQLconcepts/server/evaluation-tool/sql-query-distance/
+
+
+3) Navigate to /Docker-Project-NoSQLconcepts/ and run:
+
+    cp .env.sample .env
+
+
+## How to start
+
+1) Navigate to /Docker-Project-NoSQLconcepts/ folder and run:
+
+    docker-compose up --build
+
+2) Navigate to /Docker-Project-NoSQLconcepts/ folder and run:
+
+    docker compose exec ollama ollama pull gemma3:12b
+
+3) Go to your browser and type in the following:
+
+    https://localhost:3000
+
+4) Log in using the test account.
+
+    **User:** test
+    **Password:** 1234
+
+5) Create your own account under ''Manage users''.
+
+5) Enter into any course area using the predefined passwords.
+
+    **Note:** The login information are to be found in /Docker-Project-NoSQLconcepts/client/src/frontendComponents/pages/areaSelect.jsx
