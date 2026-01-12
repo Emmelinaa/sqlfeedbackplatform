@@ -6,8 +6,8 @@
 
 ## What to do before
 
-1) Download Git
-2) Download Docker
+1) Install Git
+2) Install Docker
 3) Install NPM
 
 ## How to clone the project
